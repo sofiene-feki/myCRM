@@ -120,7 +120,7 @@ const Stat = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:8000/api/contracts/line-chart-data',
+          'https://mycrm-server.onrender.com/api/contracts/line-chart-data',
           {
             params: {
               startDate: state.selection.startDate.toISOString(),
@@ -166,7 +166,7 @@ const Stat = () => {
     const fetchBarChartData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/contracts/bar-chart-data`,
+          `https://mycrm-server.onrender.com/api/contracts/bar-chart-data`,
           {
             params: {
               startDate: state.selection.startDate.toISOString(),
@@ -346,7 +346,7 @@ const Stat = () => {
     const fetchPieChartData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/contracts/pie-chart-data`,
+          `https://mycrm-server.onrender.com/api/contracts/pie-chart-data`,
           {
             params: {
               startDate: state.selection.startDate.toISOString(),
