@@ -17,8 +17,8 @@ import {
   Skeleton,
   Stack,
   Typography,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import QualificationWc from '../../components/qalification/QualificationWc';
 import QualificationQualité from '../../components/qalification/QualificationQualité';
 import QualificationSav from '../../components/qalification/QualificationSav';

@@ -489,7 +489,7 @@ const Stat = () => {
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          Tableau de bord des statistiques des ventes{' '}
+          Tableau de bord des statistiques{' '}
         </Typography>
 
         <Stack direction="row" spacing={2}>
