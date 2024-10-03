@@ -11,8 +11,8 @@ import {
   Stack,
   TextField,
   Typography,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import { Headphones } from '@mui/icons-material';
 import { updateContractQte } from '../../functions/contract';
 import { useParams } from 'react-router-dom';
