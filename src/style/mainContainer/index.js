@@ -18,7 +18,7 @@ const closedMixin = (theme) => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: 'hidden',
-  marginLeft: `calc(${theme.spacing(7)} + 1px)`,
+  marginLeft: `calc(${theme.spacing(0)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
     marginLeft: `calc(${theme.spacing(8)} + 1px)`,
   },

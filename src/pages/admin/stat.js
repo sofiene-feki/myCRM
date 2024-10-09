@@ -549,15 +549,15 @@ const Stat = () => {
         container
         spacing={1}
         sx={{
-          height: '110vh',
+          height: 'auto',
           overflow: 'hidden',
           margin: 1,
           width: 'auto',
         }}
       >
-        <Grid item xs={12} sm={8} sx={{ height: '50%' }}>
-          <div
-            style={{
+        <Grid item xs={12} sm={8} sx={{ height: '500px' }}>
+          <Box
+            sx={{
               height: '100%',
               boxShadow:
                 '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
@@ -621,10 +621,10 @@ const Stat = () => {
                 `${e.id}: ${e.formattedValue} in Partenaire: ${e.indexValue}`
               }
             />
-          </div>
+          </Box>
         </Grid>
 
-        <Grid item xs={6} sm={4} sx={{ height: '50%' }}>
+        <Grid item xs={12} sm={4} sx={{ height: '500px' }}>
           <Box
             sx={{
               width: 'auto',
@@ -726,9 +726,9 @@ const Stat = () => {
           </Box>
         </Grid>
 
-        <Grid item xs={12} sm={8} sx={{ height: '50%' }}>
-          <div
-            style={{
+        <Grid item xs={12} sm={8} sx={{ height: '500px' }}>
+          <Box
+            sx={{
               height: '100%',
               boxShadow:
                 '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
@@ -795,12 +795,12 @@ const Stat = () => {
               //   },
               // ]}
             />
-          </div>
+          </Box>
         </Grid>
 
-        <Grid item xs={6} sm={4} sx={{ height: '50%' }}>
-          <div
-            style={{
+        <Grid item xs={12} sm={4} sx={{ height: '500px' }}>
+          <Box
+            sx={{
               height: '100%',
               boxShadow:
                 '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
@@ -850,7 +850,7 @@ const Stat = () => {
               //   },
               // ]}
             />
-          </div>
+          </Box>
         </Grid>
       </Grid>
     </MainContainer>
