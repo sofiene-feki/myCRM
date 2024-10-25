@@ -27,11 +27,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-// import {
-//   DateRangePicker,
-//   defaultInputRanges,
-//   defaultStaticRanges,
-// } from 'react-date-range';
+
 import { EditCalendar } from '@mui/icons-material';
 // import * as locales from 'react-date-range/dist/locale';
 // import 'react-date-range/dist/styles.css'; // main css file
@@ -47,8 +43,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import moment from 'moment';
+import moment, { locales } from 'moment';
 import 'moment/locale/fr';
+// import { DateRangePicker } from 'react-date-range';
 
 const staticRangesLabels = {
   Today: `Aujourd'hui`,
@@ -65,10 +62,10 @@ const inputRangesLabels = {
   partenaire: `partenaire`,
 };
 
-function translateRange(dictionary) {
-  return (item) =>
-    dictionary[item.label] ? { ...item, label: dictionary[item.label] } : item;
-}
+// function translateRange(dictionary) {
+//   return (item) =>
+//     dictionary[item.label] ? { ...item, label: dictionary[item.label] } : item;
+// }
 
 // const ruStaticRanges = defaultStaticRanges.map(
 //   translateRange(staticRangesLabels)
