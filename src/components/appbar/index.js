@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
   Box,
@@ -14,9 +15,6 @@ import SideList from './SideList';
 import { DrawerHeader } from '../../style/appbar/sideList';
 import logo from '../../images/logo.png';
 import { grey } from '@mui/material/colors';
-
-
-
 
 const CrmAppbar = () => {
   const { drawer, user } = useSelector((state) => ({ ...state }));
@@ -41,7 +39,11 @@ const CrmAppbar = () => {
       {user && (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
-          <AppBarStyle position="fixed" open={drawer} sx={{backgroundColor : darkMode ? "auto"  : 'white'}}> 
+          <AppBarStyle
+            position="fixed"
+            open={drawer}
+            sx={{ backgroundColor: darkMode ? 'auto' : 'white' }}
+          >
             <Toolbar>
               <IconButton
                 color="inherit"
@@ -53,18 +55,30 @@ const CrmAppbar = () => {
                   ...(drawer && { display: 'none' }),
                 }}
               >
-                <MenuIcon sx={{color : darkMode ? "auto"  : grey[900]}} />
+                <MenuIcon sx={{ color: darkMode ? 'auto' : grey[900] }} />
               </IconButton>
-              <img src={logo} alt="Kompar logo" width="40" style={{ marginRight : "5px"}} />
+              <img
+                src={logo}
+                alt="Kompar logo"
+                width="40"
+                style={{ marginRight: '5px' }}
+              />
 
               <Typography
                 variant="h6"
                 noWrap
                 component="div"
-                sx={{ flexGrow: 1, ml : 1, color :  darkMode ? "auto"  : grey[900] }}
+                sx={{
+                  flexGrow: 1,
+                  ml: 1,
+                  color: darkMode ? 'auto' : grey[900],
+                }}
               >
                 Kompar Dashboard
               </Typography>
+              <IconButton>
+                <NotificationsIcon />
+              </IconButton>
               <IconButton onClick={handleToggleDarkMode}>
                 {darkMode ? <Brightness7 /> : <Brightness4 />}
               </IconButton>

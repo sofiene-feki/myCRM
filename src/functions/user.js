@@ -26,4 +26,16 @@ export const currentUser = async (authtoken) => {
   );
 };
 
+export const createUser = async (userData) => {
+  return await axios.post(`${API_BASE_URL}/create-user`, userData, {});
+};
+
+export const updateUser = async (userId, userData) => {
+  return await axios.put(`${API_BASE_URL}/update-user/${userId}`, userData, {});
+};
+
+export const deleteUser = async (uid) => {
+  return await axios.delete(`${API_BASE_URL}/delete-user/${uid}`);
+};
+
 export const getUsers = async () => await axios.get(`${API_BASE_URL}/users`);
