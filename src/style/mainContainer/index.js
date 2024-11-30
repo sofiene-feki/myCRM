@@ -26,6 +26,7 @@ const closedMixin = (theme) => ({
 
 export const MainContainer = styled(Box)(({ theme, open }) => ({
   marginLeft: drawerWidth,
+  height: '90vh',
   whiteSpace: 'nowrap',
   ...(open && {
     ...openedMixin(theme),

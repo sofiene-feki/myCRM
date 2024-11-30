@@ -24,7 +24,7 @@ import {
   updateUser,
 } from '../../functions/user';
 import moment from 'moment';
-import { Avatar, Typography } from '@mui/material';
+import { Avatar, LinearProgress, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { grey } from '@mui/material/colors';
 import { toast } from 'react-toastify';
@@ -54,38 +54,65 @@ function EditToolbar(props) {
   return (
     <GridToolbarContainer>
       <Button
-        color="primary"
-        startIcon={<PersonAddIcon color="'primary.main'" />}
+        color="inherit"
+        startIcon={<PersonAddIcon />}
         onClick={handleClick}
-        sx={{ color: 'primary.main', textTransform: 'none', fontWeight: 700 }}
+        sx={{
+          //color: 'primary.main',
+          textTransform: 'none',
+          fontWeight: 700,
+          boxShadow: 1,
+          mb: 1,
+        }}
       >
         Ajouter un utilisateur
       </Button>
       <Button
-        color="primary"
-        startIcon={<BusinessCenterIcon color="'primary.main'" />}
-        sx={{ color: 'primary.main', textTransform: 'none', fontWeight: 700 }}
+        color="inherit"
+        startIcon={<BusinessCenterIcon />}
+        sx={{
+          // color: 'primary.main',
+          textTransform: 'none',
+          fontWeight: 700,
+          boxShadow: 1,
+          mb: 1,
+          border: 0,
+        }}
       >
         Gestion des départements
       </Button>
-      <GridToolbarQuickFilter sx={{ marginLeft: 'auto', paddingRight: 1 }} />
+      <GridToolbarQuickFilter
+        sx={{
+          marginLeft: 'auto',
+          paddingRight: 1,
+          // boxShadow: 1,
+          mb: 1,
+          width: 'auto', // Set the width to auto or specify a custom width like '200px'
+          border: 'none', // Remove the border
+          outline: 'none', // Remove outline if present
+        }}
+      />
     </GridToolbarContainer>
   );
 }
 
-export default function Users() {
+const Users = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [rowModesModel, setRowModesModel] = useState({});
   const [updatedRow, setUpdatedRow] = useState();
-  const { drawer, darkMode } = useSelector((state) => state);
+  const { drawer } = useSelector((state) => state);
+  const darkMode = useSelector((state) => state.darkMode.darkMode);
 
   const loadUsers = async () => {
     try {
+      setLoading(true);
       const response = await getUsers();
       setRows(response.data);
     } catch (error) {
       console.error('Failed to load users', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -229,7 +256,7 @@ export default function Users() {
       field: 'password',
       headerName: (
         <strong>
-          <span style={{ color: '#1976d2' }}> Password</span>
+          <span style={{ color: '#1976d2' }}>New Password</span>
         </strong>
       ),
       flex: 0.3,
@@ -320,7 +347,7 @@ export default function Users() {
       </Typography>
       <Box
         sx={{
-          height: 500,
+          height: 'calc(100vh - 150px)',
           width: '100%',
           '& .actions': {
             color: 'text.secondary',
@@ -339,7 +366,8 @@ export default function Users() {
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
           getRowId={(row) => row.uid} // Using uid as the row identifier
-          slots={{ toolbar: EditToolbar }}
+          loading={loading}
+          slots={{ toolbar: EditToolbar, loadingOverlay: LinearProgress }}
           slotProps={{
             toolbar: {
               setRows,
@@ -349,12 +377,14 @@ export default function Users() {
           sx={{
             m: 2,
             boxShadow: 3,
-            border: 2,
-            borderColor: grey[200],
+            border: 1,
+            borderColor: grey[400],
             backgroundColor: darkMode ? 'auto' : 'white',
           }}
         />
       </Box>
     </MainContainer>
   );
-}
+};
+
+export default Users;
