@@ -58,39 +58,86 @@ function EditToolbar(props) {
         startIcon={<PersonAddIcon />}
         onClick={handleClick}
         sx={{
-          //color: 'primary.main',
-          textTransform: 'none',
-          fontWeight: 700,
-          boxShadow: 1,
-          mb: 1,
+          textTransform: 'none', // Prevent all-uppercase text
+          fontWeight: 700, // Bold text
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // 3D-like shadow
+          mb: 1, // Margin bottom
+          padding: '6px 9px', // Add padding for balanced spacing
+          borderRadius: '8px', // Rounded corners
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white background
+          backdropFilter: 'blur(4px)', // Frosted-glass effect
+          outline: 'none', // Remove outline
+          transition: 'box-shadow 0.3s, background-color 0.3s', // Smooth hover effect
+          '&:hover': {
+            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly less transparent on hover
+          },
+          '&:focus': {
+            boxShadow: '0 0 10px rgba(63, 81, 181, 0.4)', // Glow effect on focus
+          },
+          border: 1,
+          borderColor: grey[400],
         }}
       >
         Ajouter un utilisateur
       </Button>
+
       <Button
         color="inherit"
         startIcon={<BusinessCenterIcon />}
         sx={{
-          // color: 'primary.main',
-          textTransform: 'none',
-          fontWeight: 700,
-          boxShadow: 1,
-          mb: 1,
-          border: 0,
+          textTransform: 'none', // Prevent all-uppercase text
+          fontWeight: 700, // Bold text
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // 3D-like shadow
+          mb: 1, // Margin bottom
+          padding: '6px 9px', // Add padding for balanced spacing
+          borderRadius: '8px', // Rounded corners
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white background
+          backdropFilter: 'blur(4px)', // Frosted-glass effect
+          outline: 'none', // Remove outline
+          transition: 'box-shadow 0.3s, background-color 0.3s', // Smooth hover effect
+          '&:hover': {
+            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly less transparent on hover
+          },
+          '&:focus': {
+            boxShadow: '0 0 10px rgba(63, 81, 181, 0.4)', // Glow effect on focus
+          },
+          border: 1,
+          borderColor: grey[400],
         }}
       >
         Gestion des départements
       </Button>
+
       <GridToolbarQuickFilter
+        disableUnderline // Disables default underline
         sx={{
           marginLeft: 'auto',
-          paddingRight: 1,
-          // boxShadow: 1,
+          padding: '2px 4px',
           mb: 1,
-          width: 'auto', // Set the width to auto or specify a custom width like '200px'
-          border: 'none', // Remove the border
-          outline: 'none', // Remove outline if present
+          border: 1,
+          borderColor: grey[400],
+          width: '300px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          backgroundColor: '#fff',
+          '&:hover': {
+            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly less transparent on hover
+          },
+          '& .MuiInput-underline:before, & .MuiInput-underline:after': {
+            display: 'none', // Remove the underline in all states
+          },
+          '& .MuiInput-root:hover:not(.Mui-disabled):before': {
+            display: 'none', // Prevent underline from showing on hover
+          },
+          '& .MuiInput-root.Mui-focused:after': {
+            display: 'none', // Prevent underline from showing on focus
+          },
         }}
+        type="search"
+        placeholder="Search..."
       />
     </GridToolbarContainer>
   );
@@ -191,105 +238,74 @@ const Users = () => {
   const columns = [
     {
       field: 'avatar',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Avatar</span>
-        </strong>
-      ),
+      headerName: <strong>Avatar</strong>,
       renderCell: (params) => <Avatar src={params.value} />,
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'uid',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> UID</span>
-        </strong>
-      ),
+      headerName: <strong>UID</strong>,
       flex: 0.4,
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'displayName',
-      headerName: (
-        <strong>
-          {' '}
-          <span style={{ color: '#1976d2' }}> Name</span>
-        </strong>
-      ),
+      headerName: <strong>Name</strong>,
       flex: 0.4,
       editable: true,
+      headerClassName: 'super-app-theme--header',
     },
 
     {
       field: 'email',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Email</span>
-        </strong>
-      ),
+      headerName: <strong>Email</strong>,
       flex: 0.3,
       editable: true,
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'role',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Department</span>
-        </strong>
-      ),
+      headerName: <strong>Department</strong>,
       flex: 0.3,
       editable: true,
+      headerClassName: 'super-app-theme--header',
       type: 'singleSelect',
       valueOptions: ['admin', 'quality', 'sav', 'wc'],
     },
     {
       field: 'disabled',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Disabled</span>
-        </strong>
-      ),
+      headerName: <strong>Disabled</strong>,
       flex: 0.3,
       editable: true,
       type: 'boolean',
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'password',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}>New Password</span>
-        </strong>
-      ),
+      headerName: <strong>New Password</strong>,
       flex: 0.3,
       editable: true,
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'createdAt',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Creation Date</span>
-        </strong>
-      ),
+      headerName: <strong>Creation Date</strong>,
+      headerClassName: 'super-app-theme--header',
       flex: 0.3,
       renderCell: renderDateCell,
     },
     {
       field: 'updatedAt',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Last Login</span>
-        </strong>
-      ),
+      headerName: <strong>Last Login</strong>,
       flex: 0.3,
+      headerClassName: 'super-app-theme--header',
       renderCell: renderDateCell,
     },
     {
       field: 'actions',
       type: 'actions',
-      headerName: (
-        <strong>
-          <span style={{ color: '#1976d2' }}> Actions</span>
-        </strong>
-      ),
+      headerName: <strong>Actions</strong>,
+      headerClassName: 'super-app-theme--header',
       width: 100,
       cellClassName: 'actions',
       getActions: ({ id }) => {
@@ -380,6 +396,14 @@ const Users = () => {
             border: 1,
             borderColor: grey[400],
             backgroundColor: darkMode ? 'auto' : 'white',
+            '& .super-app-theme--header': {
+              boxShadow: '0px 4px 4px -2px rgba(0, 0, 0, 0.1)', // Shadow only at the bottom
+              //transition: 'background-color 0.3s, box-shadow 0.3s', // Smooth hover effects
+              '&:hover': {
+                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
+                backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly less transparent on hover
+              },
+            },
           }}
         />
       </Box>
