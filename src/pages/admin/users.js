@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -16,6 +16,11 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
   GridToolbarQuickFilter,
+  useGridSelector,
+  useGridApiContext,
+  gridPageSelector,
+  gridRowCountSelector,
+  gridClasses,
 } from '@mui/x-data-grid';
 import {
   createUser,
@@ -24,7 +29,15 @@ import {
   updateUser,
 } from '../../functions/user';
 import moment from 'moment';
-import { Avatar, LinearProgress, Typography } from '@mui/material';
+import {
+  alpha,
+  Avatar,
+  LinearProgress,
+  Pagination,
+  PaginationItem,
+  styled,
+  Typography,
+} from '@mui/material';
 import { useSelector } from 'react-redux';
 import { grey } from '@mui/material/colors';
 import { toast } from 'react-toastify';
@@ -52,7 +65,7 @@ function EditToolbar(props) {
   };
 
   return (
-    <GridToolbarContainer>
+    <GridToolbarContainer sx={{ backgroundColor: `rgba(25, 118, 210, 0.3)` }}>
       <Button
         color="inherit"
         startIcon={<PersonAddIcon />}
@@ -77,6 +90,7 @@ function EditToolbar(props) {
           },
           border: 1,
           borderColor: grey[400],
+          backgroundColor: 'white',
         }}
       >
         Ajouter un utilisateur
@@ -105,6 +119,7 @@ function EditToolbar(props) {
           },
           border: 1,
           borderColor: grey[400],
+          backgroundColor: 'white',
         }}
       >
         Gestion des départements
@@ -143,6 +158,79 @@ function EditToolbar(props) {
   );
 }
 
+function CustomFooter() {
+  const apiRef = useGridApiContext();
+  const page = useGridSelector(apiRef, gridPageSelector);
+  //const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+  const totalRowCount = useGridSelector(apiRef, gridRowCountSelector);
+
+  return (
+    <Box
+      sx={{
+        p: 1,
+        border: 1,
+        borderColor: grey[400],
+        display: 'flex',
+        justifyContent: 'space-between',
+        boxShadow: 3,
+        backgroundColor: `rgba(25, 118, 210, 0.3)`,
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ pt: 1 }}>
+        <strong>{totalRowCount} </strong> utilisateur
+      </Typography>
+      <Pagination
+        variant="outlined"
+        shape="rounded"
+        sx={{
+          '& .MuiPaginationItem-root': {
+            backgroundColor: 'white', // Set button background to white
+          },
+        }}
+        page={page + 1}
+        count={Math.ceil(totalRowCount / 20)}
+        renderItem={(props2) => <PaginationItem {...props2} disableRipple />}
+        // onChange={(event, value) => apiRef.current.setPage(value - 1)}
+      />
+    </Box>
+  );
+}
+
+const ODD_OPACITY = 0.1;
+
+const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
+  [`& .${gridClasses.row}.even`]: {
+    backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
+      },
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(
+        theme.palette.primary.main,
+        ODD_OPACITY + theme.palette.action.selectedOpacity
+      ),
+      '&:hover': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          ODD_OPACITY +
+            theme.palette.action.selectedOpacity +
+            theme.palette.action.hoverOpacity
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(
+            theme.palette.primary.main,
+            ODD_OPACITY + theme.palette.action.selectedOpacity
+          ),
+        },
+      },
+    },
+  },
+}));
+
 const Users = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -150,6 +238,13 @@ const Users = () => {
   const [updatedRow, setUpdatedRow] = useState();
   const { drawer } = useSelector((state) => state);
   const darkMode = useSelector((state) => state.darkMode.darkMode);
+
+  const getRowSpacing = useCallback((params) => {
+    return {
+      top: params.isFirstVisible ? 0 : 5,
+      bottom: params.isLastVisible ? 0 : 5,
+    };
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -239,7 +334,11 @@ const Users = () => {
     {
       field: 'avatar',
       headerName: <strong>Avatar</strong>,
-      renderCell: (params) => <Avatar src={params.value} />,
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center" sx={{ height: '100%' }}>
+          <Avatar src={params.value} sx={{ boxShadow: 2 }} alt="Avatar" />
+        </Box>
+      ),
       headerClassName: 'super-app-theme--header',
     },
     {
@@ -318,6 +417,10 @@ const Users = () => {
               label="Save"
               sx={{
                 color: 'primary.main',
+                boxShadow: 2,
+                border: 1,
+                borderColor: grey[400],
+                backgroundColor: 'white',
               }}
               onClick={handleSaveClick(id)}
               disabled={loading}
@@ -328,6 +431,12 @@ const Users = () => {
               className="textPrimary"
               onClick={handleCancelClick(id)}
               color="inherit"
+              sx={{
+                boxShadow: 2,
+                border: 1,
+                borderColor: grey[400],
+                backgroundColor: 'white',
+              }}
             />,
           ];
         }
@@ -339,14 +448,24 @@ const Users = () => {
             onClick={handleEditClick(id)}
             sx={{
               color: 'warning.light',
+              boxShadow: 2,
+              border: 1,
+              borderColor: grey[400],
+              backgroundColor: 'white',
             }}
           />,
           <GridActionsCellItem
             icon={<PersonRemoveIcon />}
             label="Delete"
             onClick={() => handleDeleteClick(id)}
-            color="error"
             disabled={loading}
+            sx={{
+              color: 'error.light',
+              boxShadow: 2,
+              border: 1,
+              borderColor: grey[400],
+              backgroundColor: 'white',
+            }}
           />,
         ];
       },
@@ -373,7 +492,7 @@ const Users = () => {
           },
         }}
       >
-        <DataGrid
+        <StripedDataGrid
           rows={rows}
           columns={columns}
           editMode="row"
@@ -382,8 +501,16 @@ const Users = () => {
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
           getRowId={(row) => row.uid} // Using uid as the row identifier
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
+          }
           loading={loading}
-          slots={{ toolbar: EditToolbar, loadingOverlay: LinearProgress }}
+          //  getRowSpacing={getRowSpacing}
+          slots={{
+            toolbar: EditToolbar,
+            loadingOverlay: LinearProgress,
+            footer: CustomFooter,
+          }}
           slotProps={{
             toolbar: {
               setRows,
@@ -396,8 +523,35 @@ const Users = () => {
             border: 1,
             borderColor: grey[400],
             backgroundColor: darkMode ? 'auto' : 'white',
+            '& .MuiDataGrid-scrollbar--vertical': {
+              width: '8px', // Adjust scrollbar width
+            },
+            '& .MuiDataGrid-scrollbar--vertical::-webkit-scrollbar': {
+              width: '8px', // Webkit-specific scrollbar width
+            },
+            '& .MuiDataGrid-scrollbarFiller.MuiDataGrid-scrollbarFiller--header':
+              {
+                backgroundColor: 'rgba(25, 118, 210, 0.3)', // Primary blue
+              },
+
+            '& .MuiDataGrid-scrollbar--vertical::-webkit-scrollbar-thumb': {
+              backgroundColor: '#fff', // Primary blue
+              borderRadius: '4px', // Rounded corners
+              border: 1,
+              borderColor: grey[400],
+              boxShadow: 3,
+            },
+            '& .MuiDataGrid-scrollbar--vertical::-webkit-scrollbar-thumb:hover':
+              {
+                backgroundColor: '#1565c0', // Darker blue on hover
+              },
+            '& .MuiDataGrid-scrollbar--vertical::-webkit-scrollbar-track': {
+              backgroundColor: '#f5f5f5', // Light gray for track
+            },
             '& .super-app-theme--header': {
-              boxShadow: '0px 4px 4px -2px rgba(0, 0, 0, 0.1)', // Shadow only at the bottom
+              boxShadow:
+                '0px -4px 4px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.1)', // Top and bottom shadow
+              backgroundColor: `rgba(25, 118, 210, 0.3)`,
               //transition: 'background-color 0.3s, box-shadow 0.3s', // Smooth hover effects
               '&:hover': {
                 boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
