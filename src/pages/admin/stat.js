@@ -25,6 +25,7 @@ import {
   Paper,
   Popper,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 
@@ -552,6 +553,135 @@ const Stat = () => {
           width: 'auto',
         }}
       >
+        <Grid item xs={12} sm={4} sx={{ height: '500px' }}>
+          <Box
+            sx={{
+              width: 'auto',
+              height: '100%',
+              boxShadow:
+                '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
+              borderRadius: '15px',
+              border: 2,
+              borderColor: grey[200],
+              backgroundColor: darkMode ? 'auto' : 'white',
+            }}
+          >
+            <List>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <CalendarMonthIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  sx={{
+                    whiteSpace: 'pre-wrap', // Keep the text formatting and line breaks
+                  }}
+                  primary="Date"
+                  secondary={
+                    endDate
+                      ? `du ${moment(startDate).format(
+                          'DD MMMM YYYY'
+                        )} AU ${moment(endDate).format('DD MMMM YYYY')}`
+                      : moment(startDate).format('DD MMMM YYYY')
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <FunctionsIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Total Energie" secondary={sum} />
+              </ListItem>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <Diversity3Icon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  sx={{ fontWeight: 'bold' }}
+                  primary={` ${partenaire}/13 partenaires`}
+                  secondary={
+                    <>
+                      ~M/j 100 ,{' '}
+                      <TrendingUpIcon fontSize="small" color="success" />
+                      19 septembre,
+                      <TrendingDownIcon fontSize="small" color="error" />
+                      17 septembre
+                    </>
+                  }
+                />
+              </ListItem>
+              {/* <ListItem>
+                <ListItemAvatar
+                  disabled={openNotification}
+                  onClick={() => {
+                    setNotificationOpen(!openNotification);
+                  }}
+                >
+                  <Badge color="error" overlap="circular" badgeContent={3}>
+                    <Avatar>
+                      <NotificationsIcon />
+                    </Avatar>
+                  </Badge>
+                </ListItemAvatar>
+                <ListItemText>
+                  <Fade in={openNotification}>
+                    <Alert
+                      severity="warning"
+                      action={
+                        <IconButton
+                          aria-label="close"
+                          color="inherit"
+                          size="small"
+                          onClick={() => {
+                            setNotificationOpen(false);
+                          }}
+                        >
+                          <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                      }
+                      sx={{ mb: 2 }}
+                    >
+                      Click the close icon to
+                    </Alert>
+                  </Fade>
+                </ListItemText>
+              </ListItem> */}
+              <Box sx={{ px: 1, display: 'flex', flexDirection: 'column' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>Prompt</Typography>
+                <Typography
+                  color="textSecondary"
+                  variant="caption"
+                  sx={{ textWrap: 'wrap' }}
+                >
+                  Describe a chart or insight you want from the data. Including
+                  fields in the prompt will help generate more relevant charts.
+                </Typography>
+                <TextField
+                  id="outlined-multiline-static"
+                  fullWidth
+                  multiline
+                  rows={3}
+                  placeholder="Enter a prompt"
+                />
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="success"
+                  sx={{ mt: 1 }}
+                  onClick={() => window.confirm('l3asba')}
+                >
+                  Generate Chart
+                </Button>
+              </Box>
+            </List>
+          </Box>
+        </Grid>
+
         <Grid item xs={12} sm={8} sx={{ height: '500px' }}>
           <Box
             sx={{
@@ -624,7 +754,6 @@ const Stat = () => {
         <Grid item xs={12} sm={4} sx={{ height: '500px' }}>
           <Box
             sx={{
-              width: 'auto',
               height: '100%',
               boxShadow:
                 '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
@@ -634,92 +763,46 @@ const Stat = () => {
               backgroundColor: darkMode ? 'auto' : 'white',
             }}
           >
-            <List>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <CalendarMonthIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  sx={{
-                    whiteSpace: 'pre-wrap', // Keep the text formatting and line breaks
-                  }}
-                  primary="Date"
-                  secondary={
-                    endDate
-                      ? `du ${moment(startDate).format(
-                          'DD MMMM YYYY'
-                        )} AU ${moment(endDate).format('DD MMMM YYYY')}`
-                      : moment(startDate).format('DD MMMM YYYY')
-                  }
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <FunctionsIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="Total Energie" secondary={sum} />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <Diversity3Icon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  sx={{ fontWeight: 'bold' }}
-                  primary={` ${partenaire}/13 partenaires`}
-                  secondary={
-                    <>
-                      ~M/j 100 ,{' '}
-                      <TrendingUpIcon fontSize="small" color="success" />
-                      19 septembre,
-                      <TrendingDownIcon fontSize="small" color="error" />
-                      17 septembre
-                    </>
-                  }
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar
-                  disabled={openNotification}
-                  onClick={() => {
-                    setNotificationOpen(!openNotification);
-                  }}
-                >
-                  <Badge color="error" overlap="circular" badgeContent={3}>
-                    <Avatar>
-                      <NotificationsIcon />
-                    </Avatar>
-                  </Badge>
-                </ListItemAvatar>
-                <ListItemText>
-                  <Fade in={openNotification}>
-                    <Alert
-                      severity="warning"
-                      action={
-                        <IconButton
-                          aria-label="close"
-                          color="inherit"
-                          size="small"
-                          onClick={() => {
-                            setNotificationOpen(false);
-                          }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      }
-                      sx={{ mb: 2 }}
-                    >
-                      Click the close icon to
-                    </Alert>
-                  </Fade>
-                </ListItemText>
-              </ListItem>
-            </List>
+            <ResponsivePie
+              data={pieData}
+              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+              innerRadius={0.5}
+              padAngle={0.7}
+              cornerRadius={3}
+              activeOuterRadiusOffset={8}
+              borderWidth={1}
+              colors={['#30ad71', '#0abaf0']}
+              borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
+              arcLinkLabelsSkipAngle={10}
+              arcLinkLabelsTextColor="#333333"
+              arcLinkLabelsThickness={2}
+              arcLinkLabelsColor={{ from: 'color' }}
+              arcLabelsSkipAngle={10}
+              arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+              // legends={[
+              //   {
+              //     anchor: 'bottom-right',
+              //     direction: 'column',
+              //     justify: false,
+              //     translateX: 0,
+              //     translateY: 56,
+              //     itemsSpacing: 0,
+              //     itemWidth: 70,
+              //     itemHeight: 18,
+              //     itemTextColor: '#999',
+              //     itemDirection: 'left-to-right',
+              //     itemOpacity: 1,
+              //     symbolSize: 18,
+              //     symbolShape: 'circle',
+              //     effects: [
+              //       {
+              //         on: 'hover',
+              //         style: { itemTextColor: '#000' },
+              //       },
+              //     ],
+              //   },
+              // ]}
+            />
           </Box>
         </Grid>
 
@@ -787,61 +870,6 @@ const Stat = () => {
               //           itemBackground: 'rgba(0, 0, 0, .03)',
               //           itemOpacity: 1,
               //         },
-              //       },
-              //     ],
-              //   },
-              // ]}
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} sm={4} sx={{ height: '500px' }}>
-          <Box
-            sx={{
-              height: '100%',
-              boxShadow:
-                '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.2)',
-              borderRadius: '15px',
-              border: 2,
-              borderColor: grey[200],
-              backgroundColor: darkMode ? 'auto' : 'white',
-            }}
-          >
-            <ResponsivePie
-              data={pieData}
-              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-              innerRadius={0.5}
-              padAngle={0.7}
-              cornerRadius={3}
-              activeOuterRadiusOffset={8}
-              borderWidth={1}
-              colors={['#30ad71', '#0abaf0']}
-              borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-              arcLinkLabelsSkipAngle={10}
-              arcLinkLabelsTextColor="#333333"
-              arcLinkLabelsThickness={2}
-              arcLinkLabelsColor={{ from: 'color' }}
-              arcLabelsSkipAngle={10}
-              arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-              // legends={[
-              //   {
-              //     anchor: 'bottom-right',
-              //     direction: 'column',
-              //     justify: false,
-              //     translateX: 0,
-              //     translateY: 56,
-              //     itemsSpacing: 0,
-              //     itemWidth: 70,
-              //     itemHeight: 18,
-              //     itemTextColor: '#999',
-              //     itemDirection: 'left-to-right',
-              //     itemOpacity: 1,
-              //     symbolSize: 18,
-              //     symbolShape: 'circle',
-              //     effects: [
-              //       {
-              //         on: 'hover',
-              //         style: { itemTextColor: '#000' },
               //       },
               //     ],
               //   },

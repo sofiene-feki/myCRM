@@ -554,8 +554,7 @@ const Users = () => {
               backgroundColor: `rgba(25, 118, 210, 0.3)`,
               //transition: 'background-color 0.3s, box-shadow 0.3s', // Smooth hover effects
               '&:hover': {
-                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
-                backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly less transparent on hover
+                boxShadow: '0 6px 8px rgba(0, 0, 0, 0.15)', // Stronger shadow on hover
               },
             },
           }}
