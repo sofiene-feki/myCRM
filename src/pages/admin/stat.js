@@ -49,7 +49,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import moment, { locales } from 'moment';
 import 'moment/locale/fr';
+import { DateRangePicker } from 'react-date-range';
 // import { DateRangePicker } from 'react-date-range';
 
 const staticRangesLabels = {
@@ -106,8 +108,8 @@ const Stat = () => {
         months={1}
         // minDate={addDays(new Date(), -300)}
         // maxDate={addDays(new Date(), 900)}
-        staticRanges={ruStaticRanges}
-        inputRanges={ruInputRanges}
+        // staticRanges={ruStaticRanges}
+        // inputRanges={ruInputRanges}
         direction="vertical"
         ranges={[state.selection]}
         locale={locales['fr']}
