@@ -49,7 +49,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import moment, { locales } from 'moment';
 import 'moment/locale/fr';
 // import { DateRangePicker } from 'react-date-range';
 
