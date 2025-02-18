@@ -51,7 +51,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import moment from 'moment';
 import 'moment/locale/fr';
-import { DateRangePicker } from 'react-date-range';
+//import { DateRangePicker } from 'react-date-range';
 // import { DateRangePicker } from 'react-date-range';
 
 const staticRangesLabels = {
@@ -103,7 +103,7 @@ const Stat = () => {
 
   const content = (
     <Stack spacing={2} mt={1}>
-      <DateRangePicker
+      {/* <DateRangePicker
         onChange={(item) => setState({ ...state, ...item })}
         months={1}
         // minDate={addDays(new Date(), -300)}
@@ -113,7 +113,7 @@ const Stat = () => {
         direction="vertical"
         ranges={[state.selection]}
         locale={locales['fr']}
-      />
+      /> */}
     </Stack>
   );
 
