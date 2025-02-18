@@ -16,22 +16,27 @@ import {
   Chip,
   Collapse,
   Fade,
+  FormControl,
+  FormHelperText,
   Grid,
   IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  MenuItem,
   Paper,
   Popper,
+  Select,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 
 import { EditCalendar } from '@mui/icons-material';
-// import * as locales from 'react-date-range/dist/locale';
-// import 'react-date-range/dist/styles.css'; // main css file
+import * as locales from 'react-date-range/dist/locale';
+import 'react-date-range/dist/styles.css'; // main css file
 // import 'react-date-range/dist/theme/default.css'; // theme css file
 import DraggableDialog from '../../components/dialog';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -97,7 +102,7 @@ const Stat = () => {
 
   const content = (
     <Stack spacing={2} mt={1}>
-      {/* <DateRangePicker
+      <DateRangePicker
         onChange={(item) => setState({ ...state, ...item })}
         months={1}
         // minDate={addDays(new Date(), -300)}
@@ -107,7 +112,7 @@ const Stat = () => {
         direction="vertical"
         ranges={[state.selection]}
         locale={locales['fr']}
-      /> */}
+      />
     </Stack>
   );
 
@@ -652,7 +657,33 @@ const Stat = () => {
                 </ListItemText>
               </ListItem> */}
               <Box sx={{ px: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>Prompt</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Prompt</Typography>
+
+                  <FormControl sx={{ minWidth: 120 }} size="small">
+                    {/* <InputLabel id="demo-select-small-label" sx={{ mb: 2 }}>
+                      Data source
+                    </InputLabel> */}
+                    <Select
+                      //labelId="helperText"
+                      id="filled-helperText"
+                      value=""
+                      label="Age"
+                      variant="filled"
+                      sx={{ height: 25 }}
+
+                      //onChange={handleChange}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={10}>Ten</MenuItem>
+                      <MenuItem value={20}>Twenty</MenuItem>
+                      <MenuItem value={30}>Thirty</MenuItem>
+                    </Select>
+                    <FormHelperText>Select Data source</FormHelperText>
+                  </FormControl>
+                </Box>
                 <Typography
                   color="textSecondary"
                   variant="caption"
@@ -673,7 +704,7 @@ const Stat = () => {
                   variant="contained"
                   color="success"
                   sx={{ mt: 1 }}
-                  onClick={() => window.confirm('l3asba')}
+                  onClick={() => window.confirm('')}
                 >
                   Generate Chart
                 </Button>
