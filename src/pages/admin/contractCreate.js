@@ -194,611 +194,588 @@
 // };
 
 // export default ContractCreate;
-/* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   DataGrid,
   GridCellEditStopReasons,
   GridColumnMenu,
-  gridQuickFilterValuesSelector,
-  GridToolbar,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
-  GridToolbarQuickFilter,
+  gridRowCountSelector,
   useGridApiRef,
 } from "@mui/x-data-grid";
 import {
   Box,
   Button,
-  IconButton,
-  InputAdornment,
   ListItemIcon,
   ListItemText,
   MenuItem,
-  Stack,
   styled,
-  TextField,
   Typography,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { MainContainer } from "../../style/mainContainer";
 import FindReplaceIcon from "@mui/icons-material/FindReplace";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ClearIcon from "@mui/icons-material/Clear";
-import UploadIcon from "@mui/icons-material/Upload";
-import SmartToyIcon from "@mui/icons-material/SmartToy"; // AI Tools Icon (replace as needed)
-import NorthIcon from "@mui/icons-material/North";
-import SouthIcon from "@mui/icons-material/South";
-import { set } from "lodash";
-import {
-  AutoAwesome,
-  AutoAwesomeMotion,
-  Co2Sharp,
-  CropSquareRounded,
-  Done,
-  DoneAll,
-  StopRounded,
-} from "@mui/icons-material";
+import * as XLSX from "xlsx";
+import CustomToolbar from "../../components/dataGrid/toolbar";
+import { tr } from "date-fns/locale";
+import { useParams } from "react-router-dom";
+import moment from "moment";
+import { grey } from "@mui/material/colors";
+import { useGridSelector } from "@mui/x-data-grid";
+import { CustomFooter } from "../../components/dataGrid/footer";
+import { debounce } from "lodash";
+import { GridVirtualScroller } from "@mui/x-data-grid/internals";
 
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  border: 0,
+  fontFamily: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    '"Segoe UI"',
+    "Roboto",
+    '"Helvetica Neue"',
+    "Arial",
+    "sans-serif",
+    '"Apple Color Emoji"',
+    '"Segoe UI Emoji"',
+    '"Segoe UI Symbol"',
+  ].join(","),
+  WebkitFontSmoothing: "auto",
+  letterSpacing: "normal",
 
-const commonButtonStyles = {
-  backgroundColor: "#222", // Dark background
-  color: "#ccc", // Light gray text
-  borderRadius: "8px", // Rounded edges
-  fontWeight: 600,
-  textTransform: "none",
-  padding: "6px 16px",
-  border: "1px solid #ccc", // Light border for contrast
-  boxShadow: "0px 4px 6px rgba(255, 255, 255, 0.1)", // Soft white glow
-  "&:hover": {
-    backgroundColor: "#333", // Slightly lighter gray
-    boxShadow: "0px 6px 12px rgba(255, 255, 255, 0.15)", // Brighter hover effect
+  "& .MuiDataGrid-columnsContainer": {
+    backgroundColor: "#1d1d1d",
+    ...(theme.applyStyles &&
+      theme.applyStyles("light", {
+        backgroundColor: "#fafafa",
+      })),
   },
-  "&:focus": {
-    boxShadow: "0 0 0 3px rgba(204, 204, 204, 0.5)", // Subtle focus ring
-  },
-};
 
-const GridToolbarQuickFilterRoot = styled(TextField)(({ theme }) => ({
-  width: "150px",
-  "& input": {
-    padding: "5px",
+  "& .MuiDataGrid-iconSeparator": {
+    display: "none",
   },
-  "& .MuiOutlinedInput-root": {
-    borderRadius: "5px",
-    fontSize: "14px",
+
+  "& .MuiDataGrid-columnHeader, .MuiDataGrid-cell": {
+    backgroundColor: theme.palette.mode === "dark" ? "auto" : "white",
+    border: "1px solid #303030",
+
+    ...(theme.applyStyles &&
+      theme.applyStyles("light", {
+        borderColor: "#f0f0f0",
+      })),
+  },
+
+  "& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell": {
+    borderBottom: "1px solid #303030",
+
+    ...(theme.applyStyles &&
+      theme.applyStyles("light", {
+        borderBottomColor: "#f0f0f0",
+      })),
+  },
+
+  "& .MuiDataGrid-cell": {
+    color: "rgba(255,255,255,0.65)",
+
+    ...(theme.applyStyles &&
+      theme.applyStyles("light", {
+        color: "rgba(0,0,0,.85)",
+      })),
+  },
+
+  "& .MuiPaginationItem-root": {
+    borderRadius: 0,
+  },
+
+  "& .hovered": {
+    backgroundColor: "rgba(194, 231, 255, 0.6) !important", // Transparent Light Blue
+  },
+  "& .copied": {
+    border: "1px dashed rgba(33, 150, 243, 0.6) !important",
+  },
+  "& .selected": {
+    backgroundColor: "rgba(194, 231, 255, 0.6) !important",
+    border: "1px solid rgba(33, 150, 243, 0.1) !important",
+  },
+  "& .copied.selected": {
+    backgroundColor: "rgba(194, 231, 255, 0.6) !important",
+    border:
+      "1px dashed rgba(33, 150, 243, 0.6) !important" /* override the solid border */,
+  },
+  "& .highlight-cell": {
+    color: "black !important",
+    fontWeight: "bold",
   },
 }));
 
-function CustomToolbar({
-  quickFilterValue,
-  setQuickFilterValue,
+let idCounter = 0;
 
-  handleReplace,
-  results,
-  currentIndex,
-  setCurrentIndex,
-}) {
-  const [showReplace, setShowReplace] = useState(false); // Toggle Replace input
-  const [replaceValue, setReplaceValue] = useState("");
+const WINDOW_SIZE = 100;
+const THRESHOLD = 500;
 
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      {/* Left Section: Grid Toolbar Buttons */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <GridToolbarColumnsButton
-          slotProps={{
-            button: {
-              variant: "contained",
-              size: "medium",
-              color: "primary",
-              sx: commonButtonStyles,
-            },
-          }}
-        />
-        <GridToolbarDensitySelector
-          slotProps={{
-            button: {
-              variant: "contained",
-              size: "medium",
-              color: "primary",
-              sx: commonButtonStyles,
-            },
-          }}
-        />
-        <GridToolbarFilterButton
-          slotProps={{
-            button: {
-              variant: "contained",
-              size: "medium",
-              color: "primary",
-              sx: commonButtonStyles,
-            },
-          }}
-        />
-        <Button
-          component="label"
-          role={undefined}
-          variant="outlined"
-          tabIndex={-1}
-          startIcon={<UploadIcon />}
-          sx={commonButtonStyles}
-        >
-          Upload files
-          <VisuallyHiddenInput
-            type="file"
-            onChange={(event) => console.log(event.target.files)}
-            multiple
-          />
-        </Button>
-        <GridToolbarExport
-          slotProps={{
-            tooltip: {
-              title: "Export Data",
-              placement: "bottom",
-              arrow: true,
-              componentsProps: {
-                tooltip: {
-                  sx: {
-                    backgroundColor: "#2c3e50", // Dark background
-                    color: "white", // White text
-                    fontSize: "0.875rem", // Slightly smaller text
-                    borderRadius: "6px", // Soft edges
-                    padding: "8px 12px",
-                    boxShadow: "0px 2px 10px rgba(0,0,0,0.2)", // Soft shadow
-                  },
-                },
-              },
-            },
-            button: {
-              variant: "contained",
-              size: "medium",
-              color: "primary",
-              sx: commonButtonStyles,
-            },
-          }}
-        />
-        <Button
-          component="label"
-          variant="outlined"
-          tabIndex={-1}
-          startIcon={<SmartToyIcon />}
-          sx={commonButtonStyles}
-        >
-          Ai tools
-        </Button>
-      </Box>
-
-      {/* Right Section: Find & Replace */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          background: "#222",
-          color: "#fff",
-          padding: "2px",
-          borderLeft: "2px solid #fff", // Left gray border
-        }}
-      >
-        {/* FIND BAR */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            height: 40,
-          }}
-        >
-          {/* Fixed-width IconButton */}
-          <IconButton
-            size="small"
-            sx={{ width: "40px", minWidth: "40px" }}
-            onClick={() => setShowReplace((prev) => !prev)}
-          >
-            {showReplace ? (
-              <ExpandLessIcon sx={{ color: "#ccc", fontSize: "20px" }} />
-            ) : (
-              <ExpandMoreIcon sx={{ color: "#ccc", fontSize: "20px" }} />
-            )}
-          </IconButton>
-
-          <GridToolbarQuickFilter
-            variant="outlined"
-            size="small"
-            sx={{
-              height: "32px",
-              flex: 1,
-              bgcolor: "#222",
-              color: "#ccc",
-              minWidth: "200px",
-              input: {
-                color: "#ccc",
-                padding: "6px 8px",
-                height: "32px",
-                "&::placeholder": { color: "#999" },
-              },
-              "& .MuiOutlinedInput-root": {
-                height: "28px",
-                minHeight: "28px",
-                width: "200px",
-                "& fieldset": {
-                  borderColor: "#ccc",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#bbb",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#aaa",
-                  boxShadow: "0 0 5px rgba(204, 204, 204, 0.5)",
-                },
-              },
-            }}
-          />
-          <Typography variant="caption" color="#fff" p={1}>
-            No results
-          </Typography>
-
-          <IconButton size="small">
-            <SouthIcon sx={{ color: "#ccc", fontSize: "small" }} />
-          </IconButton>
-          <IconButton size="small">
-            <NorthIcon sx={{ color: "#ccc", fontSize: "small" }} />
-          </IconButton>
-        </Box>
-
-        {/* REPLACE BAR (Only visible when expanded) */}
-        {showReplace && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              marginTop: "2px",
-            }}
-          >
-            {/* Empty Box to match IconButton width */}
-            <Box sx={{ width: "34px", minWidth: "34px" }} />
-            <TextField
-              variant="outlined"
-              size="small"
-              placeholder="Replace"
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FindReplaceIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              value={replaceValue}
-              onChange={(e) => setReplaceValue(e.target.value)}
-              sx={{
-                // flex: 1,
-                bgcolor: "#222",
-                color: "#ccc",
-                minWidth: "200px",
-                // borderLeft: "2px solid #666", // Left gray border
-                // paddingLeft: "8px",
-                input: {
-                  color: "#ccc",
-                  padding: "6px 8px",
-                  height: "32px",
-                  "&::placeholder": { color: "#999" },
-                },
-                "& .MuiOutlinedInput-root": {
-                  height: "28px",
-                  minHeight: "28px",
-                  width: "200px",
-                  "& fieldset": {
-                    borderColor: "#ccc",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#bbb",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#aaa",
-                    boxShadow: "0 0 5px rgba(204, 204, 204, 0.5)",
-                  },
-                },
-              }}
-            />
-            <IconButton
-              sx={{
-                bgcolor: "#ccc", // Primary color (changeable)
-                // color: "#fff", // Icon color
-                width: 24, // Size similar to Floating Action Button
-                height: 24,
-                borderRadius: "50%", // Ensures roundness
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  bgcolor: "#1565C0", // Slightly darker on hover
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)", // Shrinks slightly when clicked
-                },
-              }}
-              size="small"
-            >
-              <StopRounded sx={{ color: "#222", fontSize: "22px" }} />
-            </IconButton>
-            <IconButton
-              helperText="Please enter your name"
-              onClick={handleReplace}
-              size="small"
-              sx={{
-                bgcolor: "#ccc", // Primary color (changeable)
-                // color: "#fff", // Icon color
-                width: 24, // Size similar to Floating Action Button
-                height: 24,
-                borderRadius: "50%", // Ensures roundness
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  bgcolor: "#1565C0", // Slightly darker on hover
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)", // Shrinks slightly when clicked
-                },
-              }}
-            >
-              <AutoAwesomeMotion sx={{ color: "#222", fontSize: "16px" }} />
-            </IconButton>
-          </Box>
-        )}
-      </Box>
-    </GridToolbarContainer>
-  );
-}
-
-const StyledDataGrid = styled(DataGrid)`
-  border: 1px solid rgba(63, 81, 181, 0.3);
-  /* ✅ Copied (Google Sheets Light Blue) */
-  .copied {
-    border: 1px dashed #4285f4 !important; /* Google Sheets blue border */
-  }
-
-  /* ✅ Selected (Google Sheets Light Blue) */
-  .selected {
-    background-color: #c2e7ff !important;
-    border: 1px solid #4285f4 !important;
-  }
-
-  /* ✅ Hovered (Slightly lighter shade of blue) */
-  .hovered {
-    background-color: rgba(
-      194,
-      231,
-      255,
-      0.6
-    ) !important; /* Transparent Light Blue */
-  }
-`;
-
-function CustomUserItem(props) {
-  const { myCustomHandler, myCustomValue, setOpen } = props;
-  return (
-    <MenuItem
-      onClick={() => {
-        setOpen(true); // Open the Find & Replace dialog
-      }}
-    >
-      <ListItemIcon>
-        <FindReplaceIcon fontSize="small" />
-      </ListItemIcon>
-      <ListItemText>{myCustomValue}</ListItemText>
-    </MenuItem>
-  );
-}
-
-function CustomColumnMenu(props) {
-  const { hideMenu, setOpen } = props;
-
-  return (
-    <GridColumnMenu
-      {...props}
-      slots={{
-        // Add new item
-        columnMenuUserItem: CustomUserItem,
-      }}
-      slotProps={{
-        columnMenuUserItem: {
-          // set `displayOrder` for new item
-          displayOrder: 15,
-          // pass additional props
-          myCustomValue: "find and replace",
-          myCustomHandler: () => {
-            setOpen(true);
-            hideMenu(); // Close menu after clicking
-          },
-        },
-      }}
-    />
-  );
-}
+// Function to generate a random row
+const createRandomRow = () => {
+  idCounter += 1;
+  return {
+    id: idCounter,
+    name: "",
+    age: "",
+    address: "",
+    email: "",
+    phone: "",
+    occupation: "",
+    country: "",
+  };
+};
 
 export default function RobustCellSelectionExample() {
   const [selectedCells, setSelectedCells] = useState({});
   const [hoveredCells, setHoveredCells] = useState({});
   const [isSelecting, setIsSelecting] = useState(false);
-  const [findValue, setFindValue] = useState("");
-  const [replaceValue, setReplaceValue] = useState("");
   const [copiedCells, setCopiedCells] = useState({});
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [quickFilterValue, setQuickFilterValue] = useState([]);
+  const [editable, setEditable] = useState(false);
 
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      name: "John",
-      age: 35,
-      address: "New York",
-      email: "john@example.com",
-      phone: "123-456-7890",
-      occupation: "Engineer",
-      country: "USA",
-    },
-    {
-      id: 2,
-      name: "Alice",
-      age: 42,
-      address: "London",
-      email: "alice@example.com",
-      phone: "987-654-3210",
-      occupation: "Doctor",
-      country: "UK",
-    },
-    {
-      id: 3,
-      name: "Bob",
-      age: 29,
-      address: "Paris",
-      email: "bob@example.com",
-      phone: "456-789-0123",
-      occupation: "Designer",
-      country: "France",
-    },
-    {
-      id: 4,
-      name: "Sos",
-      age: 36,
-      address: "Tokyo",
-      email: "sos@example.com",
-      phone: "321-654-0987",
-      occupation: "Architect",
-      country: "Japan",
-    },
-    {
-      id: 5,
-      name: "Emma",
-      age: 28,
-      address: "Berlin",
-      email: "emma@example.com",
-      phone: "567-890-1234",
-      occupation: "Photographer",
-      country: "Germany",
-    },
-    {
-      id: 6,
-      name: "Liam",
-      age: 31,
-      address: "Sydney",
-      email: "liam@example.com",
-      phone: "678-901-2345",
-      occupation: "Software Developer",
-      country: "Australia",
-    },
-    {
-      id: 7,
-      name: "Olivia",
-      age: 25,
-      address: "Toronto",
-      email: "olivia@example.com",
-      phone: "789-012-3456",
-      occupation: "Writer",
-      country: "Canada",
-    },
-    {
-      id: 8,
-      name: "Noah",
-      age: 33,
-      address: "Dubai",
-      email: "noah@example.com",
-      phone: "890-123-4567",
-      occupation: "Chef",
-      country: "UAE",
-    },
-    {
-      id: 9,
-      name: "Sophia",
-      age: 40,
-      address: "Rome",
-      email: "sophia@example.com",
-      phone: "901-234-5678",
-      occupation: "Teacher",
-      country: "Italy",
-    },
-    {
-      id: 10,
-      name: "James",
-      age: 38,
-      address: "Barcelona",
-      email: "james@example.com",
-      phone: "012-345-6789",
-      occupation: "Entrepreneur",
-      country: "Spain",
-    },
-  ]);
+  const [rows, setRows] = useState(() =>
+    Array.from({ length: WINDOW_SIZE }, createRandomRow)
+  );
+  const [history, setHistory] = useState([[]]); // Initial empty history
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [disabled, setDisabled] = useState(true);
+  const debouncedUpdateRows = useCallback(
+    debounce((newRows) => {
+      setHistory((prev) => {
+        const newHistory = prev.slice(0, historyIndex + 1);
+        newHistory.push(newRows);
+        return newHistory;
+      });
+      setHistoryIndex((prev) => prev + 1);
+      setRows(newRows);
+    }, 300),
+    [historyIndex]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateRows.cancel();
+    };
+  }, [debouncedUpdateRows]);
 
   const [startCell, setStartCell] = useState(null);
+  const [columns, setColumns] = useState([]);
+  const { tableName } = useParams(); // Extract the dynamic table name from the URL
+  const apiRef = useGridApiRef();
+  const [startIndex, setStartIndex] = useState(0);
   const { drawer, user } = useSelector((state) => ({ ...state }));
   const darkMode = useSelector((state) => state.darkMode.darkMode);
-  const apiRef = useGridApiRef();
+  const tableRef = useRef(null);
+  useEffect(() => {
+    console.log(tableName, "this is the table name");
+    const handleClickOutside = (event) => {
+      if (!tableRef.current) return;
 
-  const onFilterChange = useCallback((filterModel) => {
-    setQuickFilterValue(filterModel.quickFilterValues || []); // Ensure it's always an array
+      const gridRoot = tableRef.current;
+      const clickedElement = event.target;
+
+      // Check if the clicked element is inside a row
+      const isRowClick = clickedElement.closest(".MuiDataGrid-row");
+
+      if (!isRowClick) {
+        setSelectedCells({});
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
-  const columns = [
-    { field: "name", headerName: "Name", width: 150 },
-    { field: "age", headerName: "Age", width: 100 },
-    { field: "address", headerName: "Address", width: 200 },
-    { field: "email", headerName: "Email", width: 250 },
-    { field: "phone", headerName: "Phone Number", width: 150 },
-    {
-      field: "occupation",
-      headerName: "Occupation",
-      width: 200,
+  const dispatch = useDispatch();
+
+  const onFilterChange = useCallback(
+    (filterModel) => {
+      // Here you save the data you need from the filter model
+      const value = filterModel.quickFilterValues[0];
+      //    console.log("Quick Filter from DataGrid ============>:", filterModel); // Add this log to inspect the value
+      dispatch({
+        type: "SEARCH_QUERY",
+        payload: { text: value },
+      });
     },
-    { field: "country", headerName: "Country", width: 150 },
-  ];
+    [dispatch]
+  );
+
+  const visibleRows = rows.map((row, index) => ({
+    ...row,
+    rowIndex: index + 1, // Assigns row numbers from 1 to total rows
+  }));
+
+  const { quickFilter } = useSelector((state) => state); // Assuming state.quickFilter exists
+  const columnDefinitions = {
+    clientsTable: [
+      {
+        field: "name",
+        headerName: "Name",
+        flex: 1,
+        minWidth: 100,
+        editable,
+      },
+      {
+        field: "age",
+        headerName: "Age",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "address",
+        headerName: "Address",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "email",
+        headerName: "Email",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "phone",
+        headerName: "Phone Number",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "occupation",
+        headerName: "Occupation",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "country",
+        headerName: "Country",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+    ],
+    ordersTable: [
+      {
+        field: "orderId",
+        headerName: "Order ID",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "customer",
+        headerName: "Customer",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "total",
+        headerName: "Total",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "date",
+        headerName: "Date",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+    ],
+    NewWorkTable: [
+      {
+        field: "A",
+        headerName: "A",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "B",
+        headerName: "B",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "C",
+        headerName: "C",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "D",
+        headerName: "D",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "E",
+        headerName: "E",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "F",
+        headerName: "F",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+
+      {
+        field: "G",
+        headerName: "G",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "H",
+        headerName: "H",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "J",
+        headerName: "J",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+      {
+        field: "K",
+        headerName: "K",
+        flex: 1,
+        minWidth: 100,
+        editable: editable,
+      },
+    ],
+
+    energyTable: [
+      {
+        field: "contratRef",
+        headerName: "Contrat Ref",
+        editable,
+      },
+      {
+        field: "clientRef",
+        headerName: "Client Ref",
+        editable,
+      },
+      {
+        field: "Civility",
+        headerName: "Civility",
+        editable,
+      },
+      {
+        field: "Prénom",
+        headerName: "Prénom",
+        editable,
+      },
+      {
+        field: "Nom",
+        headerName: "Nom",
+        editable,
+      },
+      {
+        field: "Tél",
+        headerName: "Tél",
+        editable,
+      },
+      {
+        field: "Email",
+        headerName: "Email",
+        editable,
+      },
+      {
+        field: "Adresse",
+        headerName: "Adresse",
+        editable,
+      },
+      {
+        field: "Code_postal",
+        headerName: "Code postal",
+        editable,
+      },
+      {
+        field: "Commune",
+        headerName: "Commune",
+        editable,
+      },
+      {
+        field: "energie",
+        headerName: "Energie",
+        editable,
+      },
+      {
+        field: "Point_de_livraison",
+        headerName: "PDL",
+        editable,
+      },
+      {
+        field: "Puissance",
+        headerName: "Puissance",
+        editable,
+      },
+      {
+        field: "Offre",
+        headerName: "Offre",
+        editable,
+      },
+      {
+        field: "Statut",
+        headerName: "Statut",
+        editable,
+      },
+      {
+        field: "Nom_du_partenaire",
+        headerName: "Partenaire",
+        editable,
+      },
+
+      {
+        field: "date_de_début",
+        headerName: "Date début",
+        editable,
+        type: "dateTime",
+        // valueFormatter: ({ value }) =>
+        //   moment(new Date(value)).format("DD/MM/YYYY "),
+      },
+      {
+        field: "date_de_la_signature",
+        headerName: "Date signature",
+        editable,
+        type: "dateTime",
+        // valueFormatter: ({ value }) =>
+        //   moment(new Date(value)).format("DD/MM/YYYY "),
+      },
+      {
+        field: "Type_de_contrat",
+        headerName: "Type de contrat",
+        editable,
+      },
+      {
+        field: "Mensualité",
+        headerName: "Mensualité",
+        editable,
+      },
+      {
+        field: "Fournisseur",
+        headerName: "Fournisseur",
+        editable,
+      },
+      {
+        field: "Mode_facturation",
+        headerName: "Mode de facturation",
+        editable,
+      },
+      {
+        field: "Option_tarifaire",
+        headerName: "Option tarifaire",
+        editable,
+      },
+      {
+        field: "Date_naissance",
+        headerName: "Date de naissance",
+        editable,
+        // valueFormatter: ({ value }) =>
+        //   moment(new Date(value)).format("DD/MM/YYYY "),
+      },
+    ],
+  };
+  const scrollLockRef = useRef(false); // Prevent rapid scrolls
+
+  useEffect(() => {
+    const unsubscribe = apiRef.current?.subscribeEvent?.(
+      "scrollPositionChange",
+      ({ top }) => {
+        const scrollContainer =
+          apiRef.current?.rootElementRef?.current?.querySelector(
+            '[role="presentation"]'
+          );
+
+        if (!scrollContainer || scrollLockRef.current) return;
+
+        const maxScroll =
+          scrollContainer.scrollHeight - scrollContainer.clientHeight;
+
+        if (top >= maxScroll - THRESHOLD) {
+          // Append new rows
+          scrollLockRef.current = true;
+          const nextIndex = startIndex + WINDOW_SIZE;
+          const newRows = Array.from({ length: WINDOW_SIZE }, createRandomRow);
+          setRows((prev) => [...prev, ...newRows]);
+          setStartIndex(nextIndex);
+          scrollLockRef.current = false;
+        }
+
+        if (top <= THRESHOLD && startIndex > 0) {
+          // Prepend previous rows
+          scrollLockRef.current = true;
+          const prevIndex = Math.max(startIndex - WINDOW_SIZE, 0);
+          const newRows = Array.from({ length: WINDOW_SIZE }, createRandomRow);
+          setRows((prev) => [...newRows, ...prev]);
+          setStartIndex(prevIndex);
+          // Adjust scroll so it doesn’t jump
+          setTimeout(() => {
+            apiRef.current.scrollToIndexes({
+              rowIndex: WINDOW_SIZE,
+            });
+            scrollLockRef.current = false;
+          }, 50);
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [apiRef, startIndex]);
+
   const handleCopy = (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "c") {
+      setEditable(false);
+
       event.preventDefault();
 
-      console.log(selectedCells, "check line");
+      // console.log(selectedCells, "check line");
 
       const selectedRows = {};
       const copiedState = {}; // New object to track copied cells
 
+      const rowsMap = new Map(rows.map((row) => [row.id.toString(), row]));
+
       Object.keys(selectedCells).forEach((key) => {
         const [rowId, field] = key.split("-");
         if (!selectedRows[rowId]) selectedRows[rowId] = {};
-        selectedRows[rowId][field] = rows.find(
-          (r) => r.id.toString() === rowId
-        )?.[field];
-
-        copiedState[key] = true; // ✅ Mark cell as copied in state
+        selectedRows[rowId][field] = rowsMap.get(rowId)?.[field]; // Faster lookup
+        copiedState[key] = true;
       });
 
       setCopiedCells(copiedState); // ✅ Update state to trigger re-render
 
-      console.log(copiedState, "hi i m the copied state");
+      // console.log(copiedState, "hi i m the copied state");
 
       // Get global styles from MuiDataGrid-root
       const gridRoot = document.querySelector(".MuiDataGrid-root");
@@ -835,14 +812,15 @@ export default function RobustCellSelectionExample() {
       });
 
       navigator.clipboard.write([clipboardItem]).then(() => {
-        console.log("Copied to clipboard:", htmlContent);
+        // console.log("Copied to clipboard:", htmlContent);
       });
     }
   };
 
   const handlePaste = (event) => {
+    setEditable(false);
     event.preventDefault();
-
+    // console.log(selectedCells);
     if (Object.keys(selectedCells).length === 0) return;
 
     // Get pasted data
@@ -916,85 +894,13 @@ export default function RobustCellSelectionExample() {
     }
 
     setRows(newRows);
-    console.log(newRows, "Updated rows after paste");
+    // console.log(newRows, "Updated rows after paste");
   };
-
-  const quickFilterString = Array.isArray(quickFilterValue)
-    ? quickFilterValue[0]
-    : quickFilterValue;
-
-  const results = rows
-    .map((row, index) =>
-      quickFilterString &&
-      row.name.toLowerCase().includes(quickFilterString.toLowerCase())
-        ? index
-        : null
-    )
-    .filter((index) => index !== null);
-
-  console.log("Quick Filter String:", quickFilterString);
-  console.log("Results Array:", results);
-  console.log(
-    "Matching Row Names:",
-    results.map((i) => rows[i]?.name)
-  );
-
-  console.log("Quick Filter Value:", quickFilterValue);
-  console.log("Results Array:", results);
-  console.log(
-    "Matching Row Names:",
-    results.map((i) => rows[i]?.name)
-  );
-
-  const handleReplace = () => {
-    const quickFilterString = Array.isArray(quickFilterValue)
-      ? quickFilterValue[0]
-      : quickFilterValue;
-
-    if (!quickFilterString || !replaceValue) {
-      console.log(
-        "No replacement: quickFilterValue or replaceValue is missing."
-      );
-      return;
-    }
-
-    // 🔥 Recalculate `results` inside the function
-    const results = rows
-      .map((row, index) =>
-        quickFilterString && row.name.includes(quickFilterString) ? index : null
-      )
-      .filter((index) => index !== null);
-
-    console.log("Replacing:", quickFilterString, "with:", replaceValue);
-    console.log("Current Results:", results);
-
-    const updatedRows = rows.map((row, index) => {
-      if (results.includes(index)) {
-        console.log(`Before Replacement: ${row.name}`);
-        const newName = row.name.replace(
-          new RegExp(quickFilterString, "gi"),
-          replaceValue
-        );
-        console.log(`After Replacement: ${newName}`);
-        return { ...row, name: newName };
-      }
-      return row;
-    });
-
-    console.log("Updated Rows Before SetState:", updatedRows);
-    setRows([...updatedRows]); // ✅ This ensures state changes
-
-    setTimeout(() => {
-      console.log("State After Update:", rows); // ✅ Now it should be updated
-    }, 100);
-  };
-
-  useEffect(() => {
-    console.log("Updated rows state:", rows);
-  }, [rows]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleCopy);
+    if (Object.keys(selectedCells).length === 0) return;
+
     window.addEventListener("paste", handlePaste);
 
     return () => {
@@ -1002,79 +908,35 @@ export default function RobustCellSelectionExample() {
       window.removeEventListener("paste", handlePaste);
     };
   }, [selectedCells, rows]);
+
   const handleMouseDown = (params) => {
     const { id, field } = params;
     setStartCell({ id, field });
+    console.log(id, field, "this is the start cell");
     setIsSelecting(true);
     setSelectedCells({ [`${id}-${field}`]: true });
     // console.log(params, 'this is all the params');
   };
 
-  const handleMouseOver = (params) => {
-    if (!isSelecting || !startCell) return;
-
-    const { id, field } = params;
-    console.log(id, field);
-    const startRow = Math.min(startCell.id, id);
-    const endRow = Math.max(startCell.id, id);
-    const startColIndex = columns.findIndex(
-      (col) => col.field === startCell.field
-    );
-    const endColIndex = columns.findIndex((col) => col.field === field);
-
-    const updatedHoveredCells = {};
-    for (let row = startRow; row <= endRow; row++) {
-      for (
-        let col = Math.min(startColIndex, endColIndex);
-        col <= Math.max(startColIndex, endColIndex);
-        col++
-      ) {
-        const cellField = columns[col].field;
-        updatedHoveredCells[`${row}-${cellField}`] = true;
-      }
-    }
-
-    setHoveredCells(updatedHoveredCells);
-  };
-
-  const handleMouseUp = (params) => {
-    if (!startCell) return;
-
-    const { id: endRow, field: endField } = params;
-    const startRow = Math.min(startCell.id, endRow);
-    const endRowMax = Math.max(startCell.id, endRow);
-    const startColIndex = columns.findIndex(
-      (col) => col.field === startCell.field
-    );
-    const endColIndex = columns.findIndex((col) => col.field === endField);
-
-    const updatedSelectedCells = { ...selectedCells };
-    for (let row = startRow; row <= endRowMax; row++) {
-      for (
-        let col = Math.min(startColIndex, endColIndex);
-        col <= Math.max(startColIndex, endColIndex);
-        col++
-      ) {
-        const cellField = columns[col].field;
-        updatedSelectedCells[`${row}-${cellField}`] = true;
-      }
-    }
-
-    setSelectedCells(updatedSelectedCells);
-    setHoveredCells({});
-    setStartCell(null);
-    setIsSelecting(false);
-  };
-
   const getCellClassName = (params) => {
     const { id, field } = params;
     const cellKey = `${id}-${field}`;
+    const filterText = quickFilter?.text?.toLowerCase();
 
-    if (copiedCells[cellKey]) return "copied"; // ✅ Apply copied class
-    if (selectedCells[cellKey]) return "selected";
-    if (hoveredCells[cellKey]) return "hovered";
+    let classNames = [];
 
-    return "";
+    if (copiedCells[cellKey]) classNames.push("copied");
+    if (selectedCells[cellKey]) classNames.push("selected");
+    if (hoveredCells[cellKey]) classNames.push("hovered");
+
+    if (
+      filterText &&
+      params.value?.toString().toLowerCase().includes(filterText)
+    ) {
+      classNames.push("highlight-cell");
+    }
+
+    return classNames.join(" ");
   };
 
   useEffect(() => {
@@ -1083,9 +945,9 @@ export default function RobustCellSelectionExample() {
     const handleMouseOverEvent = (params) => handleMouseOver(params);
     const handleMouseUpEvent = (params) => handleMouseUp(params);
 
-    if (apiRef.current) {
-      console.log("apiRef.current.subscribeEvent:", apiRef);
-    }
+    // if (apiRef.current) {
+    //   console.log("apiRef.current.subscribeEvent:", apiRef);
+    // }
 
     const unsubscribeMouseDown = apiRef.current.subscribeEvent(
       "cellMouseDown",
@@ -1106,47 +968,243 @@ export default function RobustCellSelectionExample() {
       unsubscribeMouseUp();
     };
   }, [apiRef, isSelecting, startCell, selectedCells, hoveredCells]);
+  const handleCellEditStop = (params, event) => {
+    if (params.reason === "blur") {
+      apiRef.current.stopCellEditMode({ id: params.id, field: params.field });
+    }
+  };
+
+  const processRowUpdate = (newRow) => {
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) =>
+        row.id === newRow.id ? newRow : row
+      );
+
+      debouncedUpdateRows(updatedRows); // history tracking is debounced
+      return updatedRows;
+    });
+
+    return newRow;
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setRows(history[newIndex]);
+      setHistoryIndex(newIndex);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setRows(history[newIndex]);
+      setHistoryIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+      const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+
+      if (ctrlKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      }
+
+      if (ctrlKey && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleUndo, handleRedo, historyIndex, history]);
+
+  useEffect(() => {
+    // Set the columns based on the table name from the URL
+    if (columnDefinitions[tableName]) {
+      setColumns(columnDefinitions[tableName]);
+    } else {
+      setColumns([]);
+    }
+  }, [tableName, editable]);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = event.target.result;
+      const workbook = XLSX.read(data, { type: "binary", cellDates: true });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const excelData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const headers = excelData[0];
+      const rows = excelData.slice(1).map((row) => {
+        return headers.reduce((obj, header, index) => {
+          obj[header] = row[index];
+          return obj;
+        }, {});
+      });
+      console.log(rows);
+      setRows(rows);
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const handleReset = () => {
+    setRows([]);
+    console.log(user);
+  };
+
+  const handleMouseOver = (params) => {
+    if (!isSelecting || !startCell) return;
+    const { id, field } = params;
+    // Get the row index of the start and current cell
+    const startRow = visibleRows.find(
+      (row) => row.id === startCell.id
+    )?.rowIndex;
+    const endRow = visibleRows.find((row) => row.id === id)?.rowIndex;
+
+    if (startRow === undefined || endRow === undefined) return;
+
+    const [minRow, maxRow] = [startRow, endRow].sort((a, b) => a - b);
+
+    const startColIndex = columns.findIndex(
+      (col) => col.field === startCell.field
+    );
+    const endColIndex = columns.findIndex((col) => col.field === field);
+
+    const updatedHoveredCells = {};
+    for (let row of visibleRows) {
+      if (row.rowIndex >= minRow && row.rowIndex <= maxRow) {
+        for (
+          let col = Math.min(startColIndex, endColIndex);
+          col <= Math.max(startColIndex, endColIndex);
+          col++
+        ) {
+          const cellField = columns[col].field;
+          updatedHoveredCells[`${row.id}-${cellField}`] = true;
+        }
+      }
+    }
+    setEditable(false);
+    setHoveredCells(updatedHoveredCells);
+  };
+
+  const handleMouseUp = (params) => {
+    if (!startCell) return;
+
+    const { id: endId, field: endField } = params;
+
+    // Get the row index of the start and end cells
+    const startRow = visibleRows.find(
+      (row) => row.id === startCell.id
+    )?.rowIndex;
+    const endRow = visibleRows.find((row) => row.id === endId)?.rowIndex;
+
+    if (startRow === undefined || endRow === undefined) return;
+
+    const [minRow, maxRow] = [startRow, endRow].sort((a, b) => a - b);
+
+    const startColIndex = columns.findIndex(
+      (col) => col.field === startCell.field
+    );
+    const endColIndex = columns.findIndex((col) => col.field === endField);
+
+    const updatedSelectedCells = { ...selectedCells };
+    for (let row of visibleRows) {
+      if (row.rowIndex >= minRow && row.rowIndex <= maxRow) {
+        for (
+          let col = Math.min(startColIndex, endColIndex);
+          col <= Math.max(startColIndex, endColIndex);
+          col++
+        ) {
+          const cellField = columns[col].field;
+          updatedSelectedCells[`${row.id}-${cellField}`] = true;
+        }
+      }
+    }
+
+    setSelectedCells(updatedSelectedCells);
+    setHoveredCells({});
+    setStartCell(null);
+    setIsSelecting(false);
+  };
 
   return (
     <MainContainer
       open={drawer}
-      sx={{ backgroundColor: darkMode ? "auto" : "auto", userSelect: "none" }}
+      sx={{
+        backgroundColor: darkMode ? "auto" : grey[200],
+      }}
     >
-      <div style={{ height: "auto", width: "auto", margin: 20 }}>
+      <div
+        style={{ width: "auto", height: "calc(100vh - 110px)", margin: 20 }}
+        ref={tableRef}
+      >
         <StyledDataGrid
+          checkboxSelection
+          onRowSelectionModelChange={() => {
+            setDisabled(false);
+          }}
           rows={rows}
+          onCellDoubleClick={() => setEditable(true)}
           columns={columns}
           apiRef={apiRef}
+          onCellEditStop={handleCellEditStop}
+          processRowUpdate={processRowUpdate} // Ensures data is updated
+          editMode="cell"
+          getRowId={(row) => row.id}
           getCellClassName={getCellClassName}
           disableRowSelectionOnClick
           onCellMouseOver={handleMouseOver}
           onPaste={handlePaste} // Use onPaste directly on the container that should handle pasting
           onFilterModelChange={onFilterChange}
+          sx={{
+            m: 2,
+            boxShadow: 3,
+            border: 2,
+            borderColor: grey[200],
+          }}
           initialState={{
             filter: {
               filterModel: {
                 items: [],
-                quickFilterValues: quickFilterValue,
+                quickFilters: quickFilter,
               },
             },
           }}
           slots={{
-            columnMenu: CustomColumnMenu,
             toolbar: CustomToolbar,
+            footer: CustomFooter,
           }}
           slotProps={{
             toolbar: {
               showQuickFilter: true,
+              rows,
+              setRows,
+              handleFileUpload,
+              handleRedo,
+              handleUndo,
+              historyIndex,
+              history,
+              disabled,
+              tableName,
             },
-          }}
-          onCellEditStop={(params, event) => {
-            // Stop editing when focus is lost or paste action happens
-            if (
-              params.reason === GridCellEditStopReasons.cellFocusOut ||
-              params.reason === "paste"
-            ) {
-              event.defaultMuiPrevented = true;
-            }
+            footer: {
+              apiRef,
+              createRandomRow,
+              setRows,
+            },
           }}
         />
       </div>

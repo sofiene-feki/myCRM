@@ -1,48 +1,48 @@
-import { GridActionsCellItem } from '@mui/x-data-grid';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import TouchAppIcon from '@mui/icons-material/TouchApp';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
-import { Tooltip } from '@mui/material';
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import TouchAppIcon from "@mui/icons-material/TouchApp";
+import { Link } from "react-router-dom";
+import moment from "moment";
+import { Tooltip } from "@mui/material";
 
 export const usersColumns = [
   {
-    field: '_id',
-    headerName: 'Id',
+    field: "_id",
+    headerName: "Id",
     flex: 1.4,
   },
   {
-    field: 'displayName',
-    headerName: 'displayName',
+    field: "displayName",
+    headerName: "displayName",
     flex: 1.4,
   },
   {
-    field: 'email',
-    headerName: 'Email',
+    field: "email",
+    headerName: "Email",
     flex: 1.4,
   },
   {
-    field: 'role',
-    headerName: 'Role',
+    field: "role",
+    headerName: "Role",
     flex: 1,
   },
   {
-    field: 'createdAt',
-    headerName: 'Date de création',
+    field: "createdAt",
+    headerName: "Date de création",
     flex: 1,
   },
   {
-    field: 'updatedAt',
-    headerName: 'dernière connection',
+    field: "updatedAt",
+    headerName: "dernière connection",
     flex: 1.4,
   },
 
   {
-    field: 'actions',
-    headerName: 'Actions',
-    type: 'actions',
+    field: "actions",
+    headerName: "Actions",
+    type: "actions",
     flex: 1,
     getActions: (params) => [
       <GridActionsCellItem
@@ -66,185 +66,185 @@ export const usersColumns = [
 
 export const contractCreateColumns = [
   {
-    field: 'contratRef',
-    headerName: 'Contrat Ref',
+    field: "contratRef",
+    headerName: "Contrat Ref",
     editable: true,
   },
   {
-    field: 'clientRef',
-    headerName: 'Client Ref',
+    field: "clientRef",
+    headerName: "Client Ref",
     editable: true,
   },
   {
-    field: 'Civility',
-    headerName: 'Civility',
+    field: "Civility",
+    headerName: "Civility",
     editable: true,
   },
   {
-    field: 'Prénom',
-    headerName: 'Prénom',
+    field: "Prénom",
+    headerName: "Prénom",
     editable: true,
   },
   {
-    field: 'Nom',
-    headerName: 'Nom',
+    field: "Nom",
+    headerName: "Nom",
     editable: true,
   },
   {
-    field: 'Tél',
-    headerName: 'Tél',
+    field: "Tél",
+    headerName: "Tél",
     editable: true,
   },
   {
-    field: 'Email',
-    headerName: 'Email',
+    field: "Email",
+    headerName: "Email",
     editable: true,
   },
   {
-    field: 'Adresse',
-    headerName: 'Adresse',
+    field: "Adresse",
+    headerName: "Adresse",
     editable: true,
   },
   {
-    field: 'Code_postal',
-    headerName: 'Code postal',
+    field: "Code_postal",
+    headerName: "Code postal",
     editable: true,
   },
   {
-    field: 'Commune',
-    headerName: 'Commune',
+    field: "Commune",
+    headerName: "Commune",
     editable: true,
   },
   {
-    field: 'energie',
-    headerName: 'Energie',
+    field: "energie",
+    headerName: "Energie",
     editable: true,
   },
   {
-    field: 'Point_de_livraison',
-    headerName: 'PDL',
+    field: "Point_de_livraison",
+    headerName: "PDL",
     editable: true,
   },
   {
-    field: 'Puissance',
-    headerName: 'Puissance',
+    field: "Puissance",
+    headerName: "Puissance",
     editable: true,
   },
   {
-    field: 'Offre',
-    headerName: 'Offre',
+    field: "Offre",
+    headerName: "Offre",
     editable: true,
   },
   {
-    field: 'Statut',
-    headerName: 'Statut',
+    field: "Statut",
+    headerName: "Statut",
     editable: true,
   },
   {
-    field: 'Nom_du_partenaire',
-    headerName: 'Partenaire',
+    field: "Nom_du_partenaire",
+    headerName: "Partenaire",
     editable: true,
   },
 
   {
-    field: 'date_de_début',
-    headerName: 'Date début',
+    field: "date_de_début",
+    headerName: "Date début",
     editable: true,
-    type: 'dateTime',
+    type: "dateTime",
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
   {
-    field: 'date_de_la_signature',
-    headerName: 'Date signature',
+    field: "date_de_la_signature",
+    headerName: "Date signature",
     editable: true,
-    type: 'dateTime',
+    type: "dateTime",
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
   {
-    field: 'Type_de_contrat',
-    headerName: 'Type de contrat',
+    field: "Type_de_contrat",
+    headerName: "Type de contrat",
     editable: true,
   },
   {
-    field: 'Mensualité',
-    headerName: 'Mensualité',
+    field: "Mensualité",
+    headerName: "Mensualité",
     editable: true,
   },
   {
-    field: 'Fournisseur',
-    headerName: 'Fournisseur',
+    field: "Fournisseur",
+    headerName: "Fournisseur",
     editable: true,
   },
   {
-    field: 'Mode_facturation',
-    headerName: 'Mode de facturation',
+    field: "Mode_facturation",
+    headerName: "Mode de facturation",
     editable: true,
   },
   {
-    field: 'Option_tarifaire',
-    headerName: 'Option tarifaire',
+    field: "Option_tarifaire",
+    headerName: "Option tarifaire",
     editable: true,
   },
   {
-    field: 'Date_naissance',
-    headerName: 'Date de naissance',
+    field: "Date_naissance",
+    headerName: "Date de naissance",
     editable: true,
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
 ];
 
 export const adminColumns = [
   {
-    field: 'clientRef',
-    headerName: 'Ref client',
+    field: "clientRef",
+    headerName: "Ref client",
     flex: 0.4,
   },
   {
-    field: 'energie',
-    headerName: 'Energie',
+    field: "energie",
+    headerName: "Energie",
     flex: 0.3,
   },
   {
-    field: 'Fournisseur',
-    headerName: 'Fournisseur',
+    field: "Fournisseur",
+    headerName: "Fournisseur",
     flex: 0.3,
   },
   {
-    field: 'date_de_la_signature',
-    headerName: 'Date de signature',
+    field: "date_de_la_signature",
+    headerName: "Date de signature",
     flex: 0.4,
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
   {
-    field: 'Tél',
-    headerName: 'Tél',
+    field: "Tél",
+    headerName: "Tél",
     flex: 0.4,
   },
 
   {
-    field: 'StatutQté',
-    headerName: 'Statut Qté',
+    field: "StatutQté",
+    headerName: "Statut Qté",
     flex: 0.3,
   },
   {
-    field: 'StatutWc',
-    headerName: 'Statut Wc',
+    field: "StatutWc",
+    headerName: "Statut Wc",
     flex: 0.3,
   },
   {
-    field: 'Nom_du_partenaire',
-    headerName: 'Partenaire',
+    field: "Nom_du_partenaire",
+    headerName: "Partenaire",
     flex: 0.4,
   },
 
   {
-    field: 'actions',
-    headerName: 'Actions',
-    type: 'actions',
+    field: "actions",
+    headerName: "Actions",
+    type: "actions",
     flex: 0.3,
     getActions: (params) => [
       <Tooltip title="voir" arrow>
@@ -271,42 +271,42 @@ export const adminColumns = [
 
 export const qualityCulumns = [
   {
-    field: 'clientRef',
-    headerName: 'Ref client',
+    field: "clientRef",
+    headerName: "Ref client",
     flex: 1.4,
   },
   {
-    field: 'date_signature',
-    headerName: 'Date de signature',
+    field: "date_signature",
+    headerName: "Date de signature",
     flex: 1.4,
   },
   {
-    field: 'Contact',
-    headerName: 'Contact',
+    field: "Contact",
+    headerName: "Contact",
     flex: 1.4,
     valueGetter: (params) =>
-      `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+      `${params.row.firstName || ""} ${params.row.lastName || ""}`,
   },
   {
-    field: 'statut',
-    headerName: 'Statut',
+    field: "statut",
+    headerName: "Statut",
     flex: 1,
   },
   {
-    field: 'energie',
-    headerName: 'Energie',
+    field: "energie",
+    headerName: "Energie",
     flex: 1,
   },
   {
-    field: 'partenaire',
-    headerName: 'Partenaire',
+    field: "partenaire",
+    headerName: "Partenaire",
     flex: 1.4,
   },
 
   {
-    field: 'actions',
-    headerName: 'Actions',
-    type: 'actions',
+    field: "actions",
+    headerName: "Actions",
+    type: "actions",
     flex: 1,
     getActions: (params) => [
       <GridActionsCellItem
@@ -330,51 +330,51 @@ export const qualityCulumns = [
 
 export const savCulumns = [
   {
-    field: 'clientRef',
-    headerName: 'Ref client',
+    field: "clientRef",
+    headerName: "Ref client",
     flex: 0.4,
   },
   {
-    field: 'date_de_la_signature',
-    headerName: 'Date de signature',
+    field: "date_de_la_signature",
+    headerName: "Date de signature",
     flex: 0.4,
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
   {
-    field: 'Contact',
-    headerName: 'Contact',
+    field: "Contact",
+    headerName: "Contact",
     flex: 0.4,
     valueGetter: (params) =>
-      `${params.row.Civility || ''} ${params.row.Prénom || ''} ${
-        params.row.Nom || ''
+      `${params.row.Civility || ""} ${params.row.Prénom || ""} ${
+        params.row.Nom || ""
       }`,
   },
   {
-    field: 'Fournisseur',
-    headerName: 'Fournisseur',
+    field: "Fournisseur",
+    headerName: "Fournisseur",
     flex: 0.3,
   },
   {
-    field: 'energie',
-    headerName: 'Energie',
+    field: "energie",
+    headerName: "Energie",
     flex: 0.3,
   },
   {
-    field: 'Nom_du_partenaire',
-    headerName: 'Partenaire',
+    field: "Nom_du_partenaire",
+    headerName: "Partenaire",
     flex: 0.4,
   },
   {
-    field: 'Tél',
-    headerName: 'Tél',
+    field: "Tél",
+    headerName: "Tél",
     flex: 0.4,
   },
 
   {
-    field: 'actions',
-    headerName: 'Actions',
-    type: 'actions',
+    field: "actions",
+    headerName: "Actions",
+    type: "actions",
     flex: 0.2,
     getActions: (params) => [
       <Tooltip title="voir" arrow>
@@ -391,51 +391,51 @@ export const savCulumns = [
 
 export const wcCulumns = [
   {
-    field: 'clientRef',
-    headerName: 'Ref client',
+    field: "clientRef",
+    headerName: "Ref client",
     flex: 0.4,
   },
   {
-    field: 'date_de_la_signature',
-    headerName: 'Date de signature',
+    field: "date_de_la_signature",
+    headerName: "Date de signature",
     flex: 0.4,
     valueFormatter: ({ value }) =>
-      moment(new Date(value)).format('DD/MM/YYYY '),
+      moment(new Date(value)).format("DD/MM/YYYY "),
   },
   {
-    field: 'Contact',
-    headerName: 'Contact',
+    field: "Contact",
+    headerName: "Contact",
     flex: 0.4,
     valueGetter: (params) =>
-      `${params.row.Civility || ''} ${params.row.Prénom || ''} ${
-        params.row.Nom || ''
+      `${params.row.Civility || ""} ${params.row.Prénom || ""} ${
+        params.row.Nom || ""
       }`,
   },
   {
-    field: 'Fournisseur',
-    headerName: 'Fournisseur',
+    field: "Fournisseur",
+    headerName: "Fournisseur",
     flex: 0.3,
   },
   {
-    field: 'energie',
-    headerName: 'Energie',
+    field: "energie",
+    headerName: "Energie",
     flex: 0.3,
   },
   {
-    field: 'Nom_du_partenaire',
-    headerName: 'Partenaire',
+    field: "Nom_du_partenaire",
+    headerName: "Partenaire",
     flex: 0.4,
   },
   {
-    field: 'Tél',
-    headerName: 'Tél',
+    field: "Tél",
+    headerName: "Tél",
     flex: 0.4,
   },
 
   {
-    field: 'actions',
-    headerName: 'Actions',
-    type: 'actions',
+    field: "actions",
+    headerName: "Actions",
+    type: "actions",
     flex: 0.2,
     getActions: (params) => [
       <Tooltip title="voir" arrow>
@@ -449,3 +449,125 @@ export const wcCulumns = [
     ],
   },
 ];
+
+export const columnDefinitions = {
+  clientsTable: [
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    { field: "age", headerName: "Age", flex: 1, minWidth: 100, editable: true },
+    {
+      field: "address",
+      headerName: "Address",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "phone",
+      headerName: "Phone Number",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "occupation",
+      headerName: "Occupation",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "country",
+      headerName: "Country",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+  ],
+  ordersTable: [
+    {
+      field: "orderId",
+      headerName: "Order ID",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+    {
+      field: "customer",
+      headerName: "Customer",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "total",
+      headerName: "Total",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+    {
+      field: "date",
+      headerName: "Date",
+      flex: 1,
+      minWidth: 100,
+      editable: true,
+    },
+  ],
+  NewWorkTable: [
+    {
+      field: "A",
+      headerName: "A",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+    {
+      field: "B",
+      headerName: "B",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+    {
+      field: "C",
+      headerName: "C",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+    {
+      field: "D",
+      headerName: "D",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+    {
+      field: "E",
+      headerName: "E",
+      flex: 1,
+      minWidth: 100,
+      editable: false,
+    },
+  ],
+};

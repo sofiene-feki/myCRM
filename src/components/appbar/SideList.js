@@ -152,8 +152,8 @@ const SideList = () => {
                     />
                   </ListItemButton>
                   <ListItemButton
-                    onClick={() => history('/admin/contract-create')}
-                    selected={location.pathname === '/admin/contract-create'}
+                    onClick={() => history('dataFactory')}
+                    selected={location.pathname === 'dataFactory'}
                     sx={{
                       pl: 5.5,
                       minHeight: 48,
@@ -169,7 +169,7 @@ const SideList = () => {
                     <ListItemIcon
                       sx={{
                         color:
-                          location.pathname === '/admin/contract-create'
+                          location.pathname === 'dataFactory'
                             ? 'black'
                             : 'auto',
                       }}
@@ -181,7 +181,7 @@ const SideList = () => {
                       sx={{
                         opacity: drawer ? 1 : 0,
                         color:
-                          location.pathname === '/admin/contract-create'
+                          location.pathname === 'dataFactory'
                             ? 'black'
                             : 'auto',
                       }}

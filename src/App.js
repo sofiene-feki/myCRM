@@ -1,25 +1,27 @@
-import React, { lazy, Suspense, useMemo } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import CrmAppbar from './components/appbar';
-import Admin from './pages/admin';
-import ContractCreate from './pages/admin/contractCreate';
-import Quality from './pages/quality';
-import Sav from './pages/sav';
-import WelcomeCall from './pages/welcome-call';
-import ContractDetails from './pages/admin/contractDetails';
-import UserProvider from './context';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useSelector } from 'react-redux';
-import RequireAuth from './protectedRoutes/RequireAuth';
-import Auth from './pages/auth/Auth';
-import ContractUpdate from './pages/admin/contractUpdate';
-import Stat from './pages/admin/stat';
-import Users from './pages/admin/users';
-import Kavkom from './pages/admin/testKavkom';
+import React, { lazy, Suspense, useMemo } from "react";
+import { Route, Routes } from "react-router-dom";
+import CrmAppbar from "./components/appbar";
+import Admin from "./pages/admin";
+import ContractCreate from "./pages/admin/contractCreate";
+import Quality from "./pages/quality";
+import Sav from "./pages/sav";
+import WelcomeCall from "./pages/welcome-call";
+import ContractDetails from "./pages/admin/contractDetails";
+import UserProvider from "./context";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useSelector } from "react-redux";
+import RequireAuth from "./protectedRoutes/RequireAuth";
+import Auth from "./pages/auth/Auth";
+import ContractUpdate from "./pages/admin/contractUpdate";
+import Stat from "./pages/admin/stat";
+import Users from "./pages/admin/users";
+import Kavkom from "./pages/admin/testKavkom";
+import DataFactory from "./pages/admin/dataFactory";
+import "./App.css";
 
-const Login = lazy(() => import('./pages/login'));
+const Login = lazy(() => import("./pages/login"));
 
 function App() {
   const darkMode = useSelector((state) => state.darkMode.darkMode);
@@ -28,7 +30,7 @@ function App() {
     () =>
       createTheme({
         palette: {
-          mode: darkMode ? 'dark' : 'light',
+          mode: darkMode ? "dark" : "light",
         },
       }),
 
@@ -47,16 +49,15 @@ function App() {
 
             <Route
               element={
-                <RequireAuth allowedRoles={['admin', 'sav', 'superviseur']} />
+                <RequireAuth allowedRoles={["admin", "sav", "superviseur"]} />
               }
             >
               <Route path="/sav" element={<Sav />} />
-              <Route path="/kavkom" element={<Kavkom />} />
             </Route>
             <Route
               element={
                 <RequireAuth
-                  allowedRoles={['admin', 'quality', 'superviseur']}
+                  allowedRoles={["admin", "quality", "superviseur"]}
                 />
               }
             >
@@ -64,17 +65,19 @@ function App() {
             </Route>
             <Route
               element={
-                <RequireAuth allowedRoles={['admin', 'wc', 'superviseur']} />
+                <RequireAuth allowedRoles={["admin", "wc", "superviseur"]} />
               }
             >
               <Route path="/wc" element={<WelcomeCall />} />
             </Route>
             <Route
-              element={<RequireAuth allowedRoles={['admin', 'superviseur']} />}
+              element={<RequireAuth allowedRoles={["admin", "superviseur"]} />}
             >
               <Route path="/admin" element={<Admin />} />
+              <Route path="/DataFactory" element={<DataFactory />} />
+
               <Route
-                path="/admin/contract-create"
+                path="/dataFactory/:tableName"
                 element={<ContractCreate />}
               />
               <Route path="/admin/stats" element={<Stat />} />
@@ -88,12 +91,12 @@ function App() {
               element={
                 <RequireAuth
                   allowedRoles={[
-                    'admin',
-                    'quality',
-                    'wc',
-                    'sav',
-                    'backOffice',
-                    'superviseur',
+                    "admin",
+                    "quality",
+                    "wc",
+                    "sav",
+                    "backOffice",
+                    "superviseur",
                   ]}
                 />
               }
