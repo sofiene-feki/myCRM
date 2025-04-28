@@ -45,7 +45,6 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import HistoryIcon from '@mui/icons-material/History';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import TodayIcon from '@mui/icons-material/Today';
-5;
 import CloseIcon from '@mui/icons-material/Close';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import NotificationsIcon from '@mui/icons-material/Notifications';
