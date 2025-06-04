@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   GridToolbarColumnsButton,
   GridToolbarContainer,
@@ -58,7 +58,7 @@ const commonButtonStyles = {
   fontWeight: 600,
   fontSize: "0.775rem", // Slightly smaller text
   textTransform: "none",
-  padding: "6px 16px",
+  padding: "4px 16px",
   border: "1px solid #ccc", // Light border for contrast
   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
   transition: "all 0.3s ease",
@@ -80,6 +80,13 @@ function CustomToolbar({
   history,
   disabled,
   tableName,
+  handleDeleteSelected,
+  debouncedUpdateRows,
+  rowSelectionModel,
+  apiRef,
+  matchIndex,
+  setMatchIndex,
+  matchingCellPositions,
 }) {
   const dispatch = useDispatch();
   const { showReplace, replaceValue } = useSelector((state) => state.replace);
@@ -120,264 +127,232 @@ function CustomToolbar({
     });
 
     console.log("✅ Updated Rows:", updatedRows);
-    setRows(updatedRows); // Update the state with modified rows
+    debouncedUpdateRows(updatedRows); // Update the state with modified rows
+  };
+
+  const isSelectionEmpty = rowSelectionModel.length === 0;
+
+  const lowerFilter = quickFilter?.text?.toLowerCase() || "";
+
+  const matchingCellCount = useMemo(() => {
+    if (!lowerFilter) return 0;
+
+    return rows.reduce((count, row) => {
+      return (
+        count +
+        Object.values(row).filter((val) =>
+          val?.toString().toLowerCase().includes(lowerFilter)
+        ).length
+      );
+    }, 0);
+  }, [rows, lowerFilter]);
+
+  const handleNext = () => {
+    if (matchingCellPositions.length === 0) return;
+
+    const nextIndex = (matchIndex + 1) % matchingCellPositions.length;
+    const nextMatch = matchingCellPositions[nextIndex];
+
+    console.log("Next Match:", nextMatch);
+
+    setMatchIndex(nextIndex);
+
+    const { rowIndex, field } = matchingCellPositions[nextIndex];
+    const rowId = rows[rowIndex]?.id;
+    if (rowId) {
+      apiRef.current.scrollToIndexes({
+        rowIndex,
+        colIndex: apiRef.current.getColumnIndex(field),
+      });
+      apiRef.current.setCellFocus(rowId, field);
+    }
+  };
+
+  const handlePrev = () => {
+    if (matchingCellPositions.length === 0) return;
+
+    const prevIndex =
+      (matchIndex - 1 + matchingCellPositions.length) %
+      matchingCellPositions.length;
+
+    const prevMatch = matchingCellPositions[prevIndex];
+
+    console.log("Previous Match:", prevMatch);
+    setMatchIndex(prevIndex);
+
+    const { rowIndex, field } = matchingCellPositions[prevIndex];
+    const rowId = rows[rowIndex]?.id;
+    if (rowId) {
+      apiRef.current.scrollToIndexes({
+        rowIndex,
+        colIndex: apiRef.current.getColumnIndex(field),
+      });
+      apiRef.current.setCellFocus(rowId, field);
+    }
   };
 
   return (
-    <GridToolbarContainer
-      sx={{
-        display: "flex",
-        flexDirection: "column", // Stack children vertically
-        alignItems: "stretch",
-      }}
-    >
-      <Box
+    <Box>
+      <GridToolbarContainer
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
+          flexDirection: "column", // Stack children vertically
+          alignItems: "stretch",
         }}
       >
-        {/* Left Section: Grid Toolbar Buttons */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <GridToolbarColumnsButton
-            slotProps={{
-              button: {
-                variant: "contained",
-                size: "medium",
-                color: "primary",
-                sx: commonButtonStyles,
-              },
-            }}
-          />
-
-          <GridToolbarDensitySelector
-            slotProps={{
-              button: {
-                variant: "contained",
-                size: "medium",
-                color: "primary",
-                sx: commonButtonStyles,
-              },
-            }}
-          />
-          <GridToolbarFilterButton
-            slotProps={{
-              button: {
-                variant: "contained",
-                size: "medium",
-                color: "primary",
-                sx: commonButtonStyles,
-              },
-            }}
-          />
-          <Button
-            component="label"
-            role={undefined}
-            variant="outlined"
-            tabIndex={-1}
-            startIcon={<UploadIcon />}
-            sx={commonButtonStyles}
-          >
-            Upload files
-            <VisuallyHiddenInput
-              type="file"
-              onChange={handleFileUpload}
-              multiple
-            />
-          </Button>
-          <GridToolbarExport
-            slotProps={{
-              tooltip: {
-                title: "Export Data",
-                placement: "bottom",
-                arrow: true,
-                componentsProps: {
-                  tooltip: {
-                    sx: {
-                      backgroundColor: "#2c3e50", // Dark background
-                      color: "white", // White text
-                      fontSize: "0.875rem", // Slightly smaller text
-                      borderRadius: "6px", // Soft edges
-                      padding: "8px 12px",
-                      boxShadow: "0px 2px 10px rgba(0,0,0,0.2)", // Soft shadow
-                    },
-                  },
-                },
-              },
-              button: {
-                variant: "contained",
-                size: "medium",
-                color: "primary",
-                sx: commonButtonStyles,
-              },
-            }}
-          />
-          <Button
-            component="label"
-            variant="outlined"
-            tabIndex={-1}
-            startIcon={<SmartToyIcon />}
-            sx={commonButtonStyles}
-          >
-            Ai tools
-          </Button>
-        </Box>
-
-        {/* Right Section: Find & Replace */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            background: grey[300], // Dark background
-            padding: "2px",
-            borderLeft: "2px solid #fff", // Left gray border
-            borderRadius: "8px", // Rounded edges
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
           }}
         >
-          {/* FIND BAR */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              height: 40,
-            }}
-          >
-            {/* Fixed-width IconButton */}
-            <IconButton
-              size="small"
-              sx={{
-                m: 0.5,
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)", // Shrinks slightly when clicked
-                },
-              }} // Dark background
-              onClick={() => dispatch(toggleReplace())}
-            >
-              {showReplace ? (
-                <ExpandLessIcon sx={{ fontSize: "small" }} />
-              ) : (
-                <ExpandMoreIcon sx={{ fontSize: "small" }} />
-              )}
-            </IconButton>
-
-            <GridToolbarQuickFilter
-              variant="outlined"
-              size="small"
-              sx={{
-                height: "32px",
-                flex: 1,
-                minWidth: "200px",
-                input: {
-                  padding: "6px 8px",
-                  height: "32px",
-                  "&::placeholder": { color: "#999" },
-                },
-                "& .MuiOutlinedInput-root": {
-                  bgcolor: "#fff", // Dark background
-
-                  height: "28px",
-                  minHeight: "28px",
-                  width: "200px",
-                  "& fieldset": {
-                    borderColor: "#ccc",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#bbb",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#aaa",
-                    boxShadow: "0 0 5px rgba(204, 204, 204, 0.5)",
-                  },
+          {/* Left Section: Grid Toolbar Buttons */}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <GridToolbarColumnsButton
+              slotProps={{
+                button: {
+                  variant: "contained",
+                  size: "medium",
+                  color: "primary",
+                  sx: commonButtonStyles,
                 },
               }}
             />
-            <Typography variant="caption" m={1}>
-              No results
-            </Typography>
 
-            <IconButton
-              size="small"
-              sx={{
-                mr: 1,
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)", // Shrinks slightly when clicked
+            <GridToolbarDensitySelector
+              slotProps={{
+                button: {
+                  variant: "contained",
+                  size: "medium",
+                  color: "primary",
+                  sx: commonButtonStyles,
                 },
               }}
-            >
-              <SouthIcon sx={{ fontSize: "small" }} />
-            </IconButton>
-            <IconButton
-              size="small"
-              sx={{
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)", // Shrinks slightly when clicked
+            />
+            <GridToolbarFilterButton
+              slotProps={{
+                button: {
+                  variant: "contained",
+                  size: "medium",
+                  color: "primary",
+                  sx: commonButtonStyles,
                 },
               }}
+            />
+            <Button
+              component="label"
+              role={undefined}
+              variant="outlined"
+              tabIndex={-1}
+              startIcon={<UploadIcon />}
+              sx={commonButtonStyles}
             >
-              <NorthIcon sx={{ fontSize: "small" }} />
-            </IconButton>
+              Upload files
+              <VisuallyHiddenInput
+                type="file"
+                onChange={handleFileUpload}
+                multiple
+              />
+            </Button>
+            <GridToolbarExport
+              slotProps={{
+                tooltip: {
+                  title: "Export Data",
+                  placement: "bottom",
+                  arrow: true,
+                  componentsProps: {
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "#2c3e50", // Dark background
+                        color: "white", // White text
+                        fontSize: "0.875rem", // Slightly smaller text
+                        borderRadius: "6px", // Soft edges
+                        padding: "8px 12px",
+                        boxShadow: "0px 2px 10px rgba(0,0,0,0.2)", // Soft shadow
+                      },
+                    },
+                  },
+                },
+                button: {
+                  variant: "contained",
+                  size: "medium",
+                  color: "primary",
+                  sx: commonButtonStyles,
+                },
+              }}
+            />
+            <Button
+              component="label"
+              variant="outlined"
+              tabIndex={-1}
+              startIcon={<SmartToyIcon />}
+              sx={commonButtonStyles}
+            >
+              Ai tools
+            </Button>
           </Box>
 
-          {/* REPLACE BAR (Only visible when expanded) */}
-          {showReplace && (
+          {/* Right Section: Find & Replace */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              background: grey[300], // Dark background
+              padding: "2px",
+              borderLeft: "2px solid #fff", // Left gray border
+              borderRadius: "8px", // Rounded edges
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
+            }}
+          >
+            {/* FIND BAR */}
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1,
-                marginTop: "2px",
+                height: 40,
               }}
             >
-              {/* Empty Box to match IconButton width */}
-              <Box sx={{ width: "24px", minWidth: "24px" }} />
-              <TextField
-                type="search"
+              {/* Fixed-width IconButton */}
+              <IconButton
+                size="small"
+                sx={{
+                  m: 0.5,
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
+                  },
+                  "&:active": {
+                    transform: "scale(0.95)", // Shrinks slightly when clicked
+                  },
+                }} // Dark background
+                onClick={() => dispatch(toggleReplace())}
+              >
+                {showReplace ? (
+                  <ExpandLessIcon sx={{ fontSize: "small" }} />
+                ) : (
+                  <ExpandMoreIcon sx={{ fontSize: "small" }} />
+                )}
+              </IconButton>
+
+              <GridToolbarQuickFilter
                 variant="outlined"
                 size="small"
-                placeholder="Replace"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <FindReplaceIcon
-                          fontSize="small"
-                          sx={{ color: "black" }}
-                        />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                value={replaceValue}
-                onChange={(e) => dispatch(setReplaceValue(e.target.value))}
                 sx={{
-                  // flex: 1,
+                  height: "32px",
+                  flex: 1,
                   minWidth: "200px",
-                  // borderLeft: "2px solid #666", // Left gray border
-                  // paddingLeft: "8px",
+
                   input: {
                     padding: "6px 8px",
                     height: "32px",
                     "&::placeholder": { color: "#999" },
                   },
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: "#fff",
+                    bgcolor: "#fff", // Dark background
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Floating effect
 
                     height: "28px",
                     minHeight: "28px",
@@ -395,12 +370,19 @@ function CustomToolbar({
                   },
                 }}
               />
+              <Typography variant="caption" m={1}>
+                {lowerFilter && matchingCellPositions?.length > 0
+                  ? `${matchIndex + 1} of ${
+                      matchingCellPositions.length
+                    } result${matchingCellPositions.length > 1 ? "s" : ""}`
+                  : "No results"}
+              </Typography>
+
               <IconButton
+                size="small"
+                onClick={handleNext}
                 sx={{
-                  // color: "#fff", // Icon color
-                  width: 24, // Size similar to Floating Action Button
-                  height: 24,
-                  borderRadius: "50%", // Ensures roundness
+                  mr: 1,
                   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
                   transition: "all 0.3s ease",
                   "&:hover": {
@@ -410,18 +392,13 @@ function CustomToolbar({
                     transform: "scale(0.95)", // Shrinks slightly when clicked
                   },
                 }}
-                size="small"
               >
-                <StopRounded sx={{ color: "#222", fontSize: "22px" }} />
+                <SouthIcon sx={{ fontSize: "small" }} />
               </IconButton>
               <IconButton
-                onClick={handleReplace}
                 size="small"
+                onClick={handlePrev}
                 sx={{
-                  // color: "#fff", // Icon color
-                  width: 24, // Size similar to Floating Action Button
-                  height: 24,
-                  borderRadius: "50%", // Ensures roundness
                   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
                   transition: "all 0.3s ease",
                   "&:hover": {
@@ -432,55 +409,169 @@ function CustomToolbar({
                   },
                 }}
               >
-                <AutoAwesomeMotion sx={{ color: "#222", fontSize: "16px" }} />
+                <NorthIcon sx={{ fontSize: "small" }} />
               </IconButton>
             </Box>
-          )}
+
+            {/* REPLACE BAR (Only visible when expanded) */}
+            {showReplace && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: "2px",
+                }}
+              >
+                {/* Empty Box to match IconButton width */}
+                <Box sx={{ width: "24px", minWidth: "24px" }} />
+                <TextField
+                  type="search"
+                  variant="outlined"
+                  size="small"
+                  placeholder="Replace"
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FindReplaceIcon
+                            fontSize="small"
+                            sx={{ color: "black" }}
+                          />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  value={replaceValue}
+                  onChange={(e) => dispatch(setReplaceValue(e.target.value))}
+                  sx={{
+                    // flex: 1,
+                    minWidth: "200px",
+                    // borderLeft: "2px solid #666", // Left gray border
+                    // paddingLeft: "8px",
+                    input: {
+                      padding: "6px 8px",
+                      height: "32px",
+                      "&::placeholder": { color: "#999" },
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      bgcolor: "#fff",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Floating effect
+                      height: "28px",
+                      minHeight: "28px",
+                      width: "200px",
+                      "& fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#bbb",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#aaa",
+                        boxShadow: "0 0 5px rgba(204, 204, 204, 0.5)",
+                      },
+                    },
+                  }}
+                />
+                <IconButton
+                  sx={{
+                    // color: "#fff", // Icon color
+                    width: 24, // Size similar to Floating Action Button
+                    height: 24,
+                    borderRadius: "50%", // Ensures roundness
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
+                    },
+                    "&:active": {
+                      transform: "scale(0.95)", // Shrinks slightly when clicked
+                    },
+                  }}
+                  size="small"
+                >
+                  <StopRounded sx={{ color: "#222", fontSize: "22px" }} />
+                </IconButton>
+                <IconButton
+                  onClick={handleReplace}
+                  size="small"
+                  sx={{
+                    // color: "#fff", // Icon color
+                    width: 24, // Size similar to Floating Action Button
+                    height: 24,
+                    borderRadius: "50%", // Ensures roundness
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Floating effect
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
+                    },
+                    "&:active": {
+                      transform: "scale(0.95)", // Shrinks slightly when clicked
+                    },
+                  }}
+                >
+                  <AutoAwesomeMotion sx={{ color: "#222", fontSize: "16px" }} />
+                </IconButton>
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <Stack direction="row" spacing={1}>
-          <Chip label={tableName} size="small" variant="outlined" />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Stack direction="row" spacing={1}>
+            <Chip label={tableName} size="small" variant="outlined" />
 
-          <IconButton
-            size="small"
-            aria-label="delete"
-            onClick={handleUndo}
-            disabled={historyIndex === 0}
-          >
-            <UndoIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            aria-label="delete"
-            onClick={handleRedo}
-            disabled={historyIndex === history.length - 1}
-          >
-            <RedoIcon fontSize="small" />
-          </IconButton>
-        </Stack>
+            <IconButton
+              size="small"
+              aria-label="delete"
+              onClick={handleUndo}
+              disabled={historyIndex === 0}
+            >
+              <UndoIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              aria-label="delete"
+              onClick={handleRedo}
+              disabled={historyIndex === history.length - 1}
+            >
+              <RedoIcon fontSize="small" />
+            </IconButton>
+          </Stack>
 
-        <Stack direction="row" spacing={1}>
-          <IconButton disabled={disabled} aria-label="delete">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-          <IconButton disabled={disabled} size="small" aria-label="delete">
-            <ShareIcon fontSize="small" />
-          </IconButton>
-          <IconButton disabled={disabled} size="small" aria-label="delete">
-            <NewLabelIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      </Box>
-    </GridToolbarContainer>
+          <Stack direction="row" spacing={1}>
+            <IconButton
+              disabled={isSelectionEmpty}
+              onClick={handleDeleteSelected}
+              aria-label="delete"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              disabled={isSelectionEmpty}
+              size="small"
+              aria-label="delete"
+            >
+              <ShareIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              disabled={isSelectionEmpty}
+              size="small"
+              aria-label="delete"
+            >
+              <NewLabelIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Box>
+      </GridToolbarContainer>
+    </Box>
   );
 }
 
